@@ -10,8 +10,8 @@ static void unregister_atom(_In_ ATOM atom, _In_ HINSTANCE instance) noexcept
     BOOL result = UnregisterClassW(MAKEINTATOM(atom), instance);
     if(!result)
     {
-        auto hr = hresult_from_last_error();
-        (hr);
+        const auto hr = hresult_from_last_error();
+        (void)(hr);
         assert(SUCCEEDED(hr));
     }
 }
@@ -33,8 +33,8 @@ static void destroy_window(_In_ HWND window) noexcept
 {
     if(!DestroyWindow(window))
     {
-        auto hr = hresult_from_last_error();
-        (hr);
+        const auto hr = hresult_from_last_error();
+        (void)(hr);
         assert(SUCCEEDED(hr));
     }
 }
@@ -78,8 +78,8 @@ static void close_handle(_In_ HANDLE handle) noexcept
 {
     if(!CloseHandle(handle))
     {
-        auto hr = hresult_from_last_error();
-        (hr);
+        const auto hr = hresult_from_last_error();
+        (void)(hr);
         assert(SUCCEEDED(hr));
     }
 }
@@ -120,8 +120,8 @@ static void local_free(_In_ HLOCAL local) noexcept
 {
     if(LocalFree(local) != nullptr)
     {
-        auto hr = hresult_from_last_error();
-        (hr);
+        const auto hr = hresult_from_last_error();
+        (void)(hr);
         assert(SUCCEEDED(hr));
     }
 }
