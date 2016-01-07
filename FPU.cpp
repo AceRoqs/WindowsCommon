@@ -12,7 +12,7 @@ Scoped_FPU_exception_control::Scoped_FPU_exception_control(unsigned int exceptio
     assert((exception_mask & ~_MCW_EM) == 0);
 
     errno_t err = _controlfp_s(&m_original_control, 0, 0);
-    PortableRuntime::check_exception(err == 0);
+    PortableRuntime::check_exception(err == 0, u8"Could not set FPU control word.");
 
     m_original_control &= m_exception_mask;
 }
@@ -47,7 +47,7 @@ void Scoped_FPU_exception_control::enable(unsigned int fpu_exceptions)
 
     // Clearing the bit enables exception.
     errno_t err = _controlfp_s(nullptr, ~fpu_exceptions, m_exception_mask & fpu_exceptions);
-    PortableRuntime::check_exception(err == 0);
+    PortableRuntime::check_exception(err == 0, u8"Could not enable FPU exceptions.");
 #else
 #error No platform support for FPU exception control.
 #endif
@@ -60,7 +60,7 @@ void Scoped_FPU_exception_control::disable(unsigned int fpu_exceptions)
 
     // Setting the bit enables masking of exception.
     errno_t err = _controlfp_s(nullptr, fpu_exceptions, m_exception_mask & fpu_exceptions);
-    PortableRuntime::check_exception(err == 0);
+    PortableRuntime::check_exception(err == 0, u8"Could not disable FPU exceptions.");
 #else
 #error No platform support for FPU exception control.
 #endif
@@ -71,7 +71,7 @@ unsigned int Scoped_FPU_exception_control::current_control() const
 #if defined(_MSC_VER)
     unsigned int control;
     errno_t err = _controlfp_s(&control, 0, 0);
-    PortableRuntime::check_exception(err == 0);
+    PortableRuntime::check_exception(err == 0, u8"Could not get FPU control word.");
 
     return control &= m_exception_mask;
 #else
