@@ -30,7 +30,7 @@ Scoped_FPU_exception_control::~Scoped_FPU_exception_control()
     _clearfp();
 
     errno_t err = _controlfp_s(nullptr, m_original_control, m_exception_mask);
-    (void)(err);    // Prevent unreferenced parameter in Release build.
+    (void)(err);    // Prevent unreferenced parameter warning in Release build.
     assert(err == 0);
 #else
 #error No platform support for FPU exception control.
