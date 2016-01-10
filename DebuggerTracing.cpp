@@ -18,7 +18,19 @@ void debugger_dprintf_fast(_In_z_ const char* output_string) noexcept
 // the traces has the fonts to display all required UTF-8 characters.
 void debugger_dprintf_utf8(_In_z_ const char* output_string) noexcept
 {
-    OutputDebugStringW(PortableRuntime::utf16_from_utf8(output_string).c_str());
+    const auto utf16_string = PortableRuntime::utf16_from_utf8(output_string);
+    const auto c_string = utf16_string.c_str();
+    const auto display_string = c_string[0] == L'!' ? c_string + 1 : c_string;
+
+    if(c_string[0] == L'!')
+    {
+        if(IsDebuggerPresent())
+        {
+            DebugBreak();
+        }
+    }
+
+    OutputDebugStringW(display_string);
 }
 
 }
