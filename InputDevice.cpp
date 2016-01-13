@@ -21,7 +21,7 @@ Input_device::Input_device(_In_ HINSTANCE instance, _In_ HWND hwnd)
     direct_input.Release();
 }
 
-Input_device::~Input_device()
+Input_device::~Input_device() noexcept
 {
     m_device->Unacquire();
 }

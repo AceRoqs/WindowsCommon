@@ -25,7 +25,7 @@ public:
     {
     }
 
-    ~Scoped_resource()
+    ~Scoped_resource() noexcept
     {
         invoke();
     }

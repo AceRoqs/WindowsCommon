@@ -23,7 +23,7 @@ Scoped_FPU_exception_control::Scoped_FPU_exception_control(unsigned int exceptio
 }
 #endif
 
-Scoped_FPU_exception_control::~Scoped_FPU_exception_control()
+Scoped_FPU_exception_control::~Scoped_FPU_exception_control() noexcept
 {
 #if defined(_MSC_VER)
     // Clear pending FPU exceptions, so enabling won't trigger them.

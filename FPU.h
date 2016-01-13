@@ -17,7 +17,7 @@ class Scoped_FPU_exception_control
 
 public:
     Scoped_FPU_exception_control(unsigned int exception_mask);
-    ~Scoped_FPU_exception_control();
+    ~Scoped_FPU_exception_control() noexcept;
     void enable(unsigned int fpu_exceptions);
     void disable(unsigned int fpu_exceptions);
 

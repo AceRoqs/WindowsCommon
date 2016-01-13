@@ -11,7 +11,7 @@ class Input_device
 {
 public:
     Input_device(_In_ HINSTANCE instance, _In_ HWND hwnd);
-    ~Input_device();
+    ~Input_device() noexcept;
     void get_input(_Out_ Keyboard_state* keyboard_state) const;
 
 private:

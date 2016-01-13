@@ -23,7 +23,7 @@ class OpenGL_window : public Window_procedure
 {
 public:
     OpenGL_window(_In_ PCSTR window_title, _In_ HINSTANCE instance, bool windowed);
-    ~OpenGL_window();
+    ~OpenGL_window() noexcept;
 
     WGL_state m_state;
 

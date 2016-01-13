@@ -136,7 +136,7 @@ OpenGL_window::OpenGL_window(_In_ PCSTR window_title, _In_ HINSTANCE instance, b
     dprintf_gl_strings();
 }
 
-OpenGL_window::~OpenGL_window()
+OpenGL_window::~OpenGL_window() noexcept
 {
     // TODO: 2014: This is just a placeholder - the fullscreen OpenGL code isn't currently exercised.
     if(!m_windowed)
