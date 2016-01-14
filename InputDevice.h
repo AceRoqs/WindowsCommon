@@ -15,7 +15,7 @@ public:
     void get_input(_Out_ Keyboard_state* keyboard_state) const;
 
 private:
-    ATL::CComPtr<IDirectInputDevice8> m_device;
+    Microsoft::WRL::ComPtr<IDirectInputDevice8> m_device;
 };
 
 }
