@@ -9,7 +9,8 @@
 namespace WindowsCommon
 {
 
-LRESULT CALLBACK Window_procedure::static_window_proc(__in HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept
+_Use_decl_annotations_
+LRESULT CALLBACK Window_procedure::static_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept
 {
     PortableRuntime::dprintf("%s\n", string_from_window_message(message));
 
@@ -40,8 +41,9 @@ LRESULT CALLBACK Window_procedure::static_window_proc(__in HWND window, UINT mes
     return return_value;
 }
 
-Window_class::Window_class(UINT style, _In_ WNDPROC window_proc, int class_extra, int window_extra, _In_ HINSTANCE instance, _In_opt_ HICON icon, _In_ HCURSOR cursor,
-    _In_opt_ HBRUSH background, _In_opt_ PCSTR menu_name, _In_ PCSTR class_name, _In_opt_ HICON small_icon) :
+_Use_decl_annotations_
+Window_class::Window_class(UINT style, WNDPROC window_proc, int class_extra, int window_extra, HINSTANCE instance, HICON icon, HCURSOR cursor,
+    HBRUSH background, PCSTR menu_name, PCSTR class_name, HICON small_icon) :
     m_menu_name(menu_name ? PortableRuntime::utf16_from_utf8(menu_name) : L""),
     m_class_name(PortableRuntime::utf16_from_utf8(class_name))
 {
@@ -73,7 +75,8 @@ Window_class::operator const WNDCLASSEXW&() const noexcept
     return m_window_class;
 }
 
-Window_class get_default_blank_window_class(_In_ HINSTANCE instance, _In_ WNDPROC window_proc, _In_ PCSTR window_class_name) noexcept
+_Use_decl_annotations_
+Window_class get_default_blank_window_class(HINSTANCE instance, WNDPROC window_proc, PCSTR window_class_name) noexcept
 {
     Window_class window_class(CS_HREDRAW | CS_VREDRAW,
                               window_proc,
@@ -105,18 +108,19 @@ Scoped_atom register_window_class(const WNDCLASSEXW& window_class)
     return make_scoped_window_class(atom, window_class.hInstance);
 }
 
+_Use_decl_annotations_
 Scoped_window create_window(
-    _In_opt_ PCSTR class_name,
-    _In_opt_ PCSTR window_name,
+    PCSTR class_name,
+    PCSTR window_name,
     DWORD style,
     int x,
     int y,
     int width,
     int height,
-    _In_opt_ HWND parent,
-    _In_opt_ HMENU menu,
-    _In_opt_ HINSTANCE instance,
-    _In_opt_ PVOID param)
+    HWND parent,
+    HMENU menu,
+    HINSTANCE instance,
+    PVOID param)
 {
     const auto class_name_utf16 = PortableRuntime::utf16_from_utf8(class_name);
     const auto window_name_utf16 = PortableRuntime::utf16_from_utf8(window_name);
@@ -127,8 +131,8 @@ Scoped_window create_window(
     return make_scoped_window(window);
 }
 
-Scoped_window create_normal_window(_In_ PCSTR class_name, _In_ PCSTR window_name, int width, int height, _In_opt_ HINSTANCE instance, _In_opt_ PVOID param)
-{
+_Use_decl_annotations_
+Scoped_window create_normal_window(PCSTR class_name, PCSTR window_name, int width, int height, HINSTANCE instance, PVOID param){
     return create_window(
         class_name,             // class_name.
         window_name,            // window_name.
@@ -145,7 +149,8 @@ Scoped_window create_normal_window(_In_ PCSTR class_name, _In_ PCSTR window_name
         param);                 // param.
 }
 
-Scoped_device_context get_device_context(_In_ HWND window)
+_Use_decl_annotations_
+Scoped_device_context get_device_context(HWND window)
 {
     const auto device_context = GetDC(window);
     CHECK_WITH_CUSTOM_HR(nullptr != device_context, E_FAIL);
@@ -153,14 +158,15 @@ Scoped_device_context get_device_context(_In_ HWND window)
     return make_scoped_device_context(device_context, release_device_context_functor(window));
 }
 
+_Use_decl_annotations_
 Scoped_handle create_file(
-    _In_ PCSTR file_name,
+    PCSTR file_name,
     DWORD desired_access,
     DWORD share_mode,
-    _In_opt_ PSECURITY_ATTRIBUTES security_attributes,
+    PSECURITY_ATTRIBUTES security_attributes,
     DWORD creation_disposition,
     DWORD flags,
-    _In_opt_ HANDLE template_file)
+    HANDLE template_file)
 {
     const auto handle = CreateFileW(PortableRuntime::utf16_from_utf8(file_name).c_str(),
                                     desired_access,
@@ -175,11 +181,12 @@ Scoped_handle create_file(
     return make_scoped_handle(handle);
 }
 
+_Use_decl_annotations_
 Scoped_handle create_event(
-    _In_opt_ PSECURITY_ATTRIBUTES security_attributes,
+    PSECURITY_ATTRIBUTES security_attributes,
     bool manual_reset,
     bool initial_state,
-    _In_opt_ PCSTR name)
+    PCSTR name)
 {
     const auto handle = CreateEventW(security_attributes,
                                      manual_reset,
@@ -193,7 +200,8 @@ Scoped_handle create_event(
     return make_scoped_handle(handle);
 }
 
-Scoped_font select_font(_In_ HFONT font, _In_ HDC device_context)
+_Use_decl_annotations_
+Scoped_font select_font(HFONT font, HDC device_context)
 {
     const auto old_font = static_cast<HFONT>(SelectObject(device_context, static_cast<HGDIOBJ>(font)));
     CHECK_WITH_CUSTOM_HR(old_font != nullptr, E_FAIL);
@@ -201,7 +209,8 @@ Scoped_font select_font(_In_ HFONT font, _In_ HDC device_context)
     return make_scoped_font(old_font, select_object_functor(device_context));
 }
 
-Scoped_font create_font_indirect(_In_ LOGFONT* log_font)
+_Use_decl_annotations_
+Scoped_font create_font_indirect(LOGFONT* log_font)
 {
     const HFONT font = CreateFontIndirectW(log_font);
     CHECK_WITH_CUSTOM_HR(font != nullptr, E_FAIL);
@@ -209,7 +218,8 @@ Scoped_font create_font_indirect(_In_ LOGFONT* log_font)
     return make_scoped_font(font);
 }
 
-Scoped_device_context begin_paint(_In_ HWND window, _Out_ PAINTSTRUCT* paint_struct)
+_Use_decl_annotations_
+Scoped_device_context begin_paint(HWND window, PAINTSTRUCT* paint_struct)
 {
     const auto device_context = BeginPaint(window, paint_struct);
     CHECK_WITH_CUSTOM_HR(device_context != nullptr, E_FAIL);

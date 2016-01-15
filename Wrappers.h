@@ -8,7 +8,7 @@ namespace WindowsCommon
 class Window_procedure
 {
 public:
-    static LRESULT CALLBACK static_window_proc(__in HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept;
+    static LRESULT CALLBACK static_window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept;
 
 protected:
     virtual LRESULT window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept = 0;

@@ -43,7 +43,8 @@ private:
     friend Scoped_atom register_hyperlink_class(_In_ HINSTANCE instance);
 };
 
-Scoped_atom register_hyperlink_class(_In_ HINSTANCE instance)
+_Use_decl_annotations_
+Scoped_atom register_hyperlink_class(HINSTANCE instance)
 {
     // This window class was derived by calling GetClassInfo on a 'static' control.
     WNDCLASSEXW window_class;
@@ -68,15 +69,17 @@ static bool is_link_length_valid(const std::wstring& link_name) noexcept
     return link_name.length() < INT_MAX;
 }
 
-Hyperlink_control::Hyperlink_control(_In_ HWND window) noexcept :
+_Use_decl_annotations_
+Hyperlink_control::Hyperlink_control(HWND window) noexcept :
     m_window(window),
     m_font(nullptr)
 {
     assert(INVALID_HANDLE_VALUE != window);
 }
 
+_Use_decl_annotations_
 LRESULT CALLBACK Hyperlink_control::window_proc(
-    _In_ HWND window,           // Handle to the window.
+    HWND window,                // Handle to the window.
     UINT message,               // Message that was sent.
     WPARAM w_param,             // First message parameter.
     LPARAM l_param) noexcept    // Second message parameter.
@@ -228,7 +231,8 @@ LRESULT CALLBACK Hyperlink_control::window_proc(
     return return_value;
 }
 
-void Hyperlink_control::on_set_font(_In_opt_ HFONT font, BOOL redraw) noexcept
+_Use_decl_annotations_
+void Hyperlink_control::on_set_font(HFONT font, BOOL redraw) noexcept
 {
     m_font = font;
     if(redraw)
@@ -333,7 +337,8 @@ void Hyperlink_control::on_l_button_up(LONG x, LONG y)
     }
 }
 
-void Hyperlink_control::on_key_down(_In_ WPARAM key) noexcept
+_Use_decl_annotations_
+void Hyperlink_control::on_key_down(WPARAM key) noexcept
 {
     if((VK_SPACE == key) || (VK_RETURN == key))
     {
@@ -355,7 +360,8 @@ void Hyperlink_control::navigate() noexcept
                   SW_SHOWNORMAL);       // Show command.
 }
 
-RECT Hyperlink_control::get_hit_rect(_In_ HDC device_context)
+_Use_decl_annotations_
+RECT Hyperlink_control::get_hit_rect(HDC device_context)
 {
     RECT hit_rect;
 

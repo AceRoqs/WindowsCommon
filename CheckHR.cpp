@@ -5,7 +5,8 @@
 namespace WindowsCommon
 {
 
-HRESULT_exception::HRESULT_exception(HRESULT hr, _In_opt_z_ const char* message) noexcept : m_hr(hr), m_error_string(nullptr)
+_Use_decl_annotations_
+HRESULT_exception::HRESULT_exception(HRESULT hr, const char* message) noexcept : m_hr(hr), m_error_string(nullptr)
 {
 #ifdef _D3D9_H_
     // D3D errors should use D3D9_exception.
@@ -91,7 +92,8 @@ HRESULT_exception& HRESULT_exception::operator=(const HRESULT_exception& that) n
 }
 
 // TODO: Keep this function until all projects have been converted away from it (particularly the Direct3D Exception class).
-void HRESULT_exception::get_error_string(_Out_writes_z_(size) PTSTR error_string, size_t size) const noexcept
+_Use_decl_annotations_
+void HRESULT_exception::get_error_string(PTSTR error_string, size_t size) const noexcept
 {
 #ifdef _D3D9_H_
     // D3D errors should use D3D9_exception.
@@ -143,7 +145,8 @@ static void debug_HRESULT_exception(HRESULT hr, _In_opt_z_ const char* message)
         throw HRESULT_exception(hr, message);
 }
 
-void check_hr(HRESULT hr, _In_opt_z_ const char* message)
+_Use_decl_annotations_
+void check_hr(HRESULT hr, const char* message)
 {
     if(FAILED(hr))
     {
@@ -151,7 +154,8 @@ void check_hr(HRESULT hr, _In_opt_z_ const char* message)
     }
 }
 
-void check_windows_error(BOOL result, _In_opt_z_ const char* message)
+_Use_decl_annotations_
+void check_windows_error(BOOL result, const char* message)
 {
     if(!result)
     {
@@ -162,7 +166,8 @@ void check_windows_error(BOOL result, _In_opt_z_ const char* message)
 }
 
 // TODO: This should go away when an extended check_exception is introduced.
-void check_with_custom_hr(BOOL result, HRESULT hr, _In_opt_z_ const char* message)
+_Use_decl_annotations_
+void check_with_custom_hr(BOOL result, HRESULT hr, const char* message)
 {
     assert(FAILED(hr));
     if(!result)

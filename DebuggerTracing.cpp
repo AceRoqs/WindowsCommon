@@ -7,7 +7,8 @@ namespace WindowsCommon
 
 // Note that it is not possible to ensure that the debugging tool that is capturing
 // the traces has the fonts to display all required UTF-8 characters.
-void debugger_dprintf(_In_z_ const char* output_string) noexcept
+_Use_decl_annotations_
+void debugger_dprintf(const char* output_string) noexcept
 {
 #ifndef NDEBUG
     const auto utf16_string = PortableRuntime::utf16_from_utf8(output_string);

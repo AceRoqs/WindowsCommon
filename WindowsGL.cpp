@@ -83,7 +83,8 @@ static bool is_window_32bits_per_pixel(_In_ HWND window)
 }
 
 // TODO: set window width/height if full screen
-OpenGL_window::OpenGL_window(_In_ PCSTR window_title, _In_ HINSTANCE instance, bool windowed) : m_windowed(windowed)
+_Use_decl_annotations_
+OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool windowed) : m_windowed(windowed)
 {
     const int window_width = 800;
     const int window_height = 600;
@@ -145,7 +146,8 @@ OpenGL_window::~OpenGL_window() noexcept
     }
 }
 
-LRESULT OpenGL_window::window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept
+_Use_decl_annotations_
+LRESULT OpenGL_window::window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept
 {
     LRESULT return_value = 0;
 
@@ -189,7 +191,8 @@ LRESULT OpenGL_window::window_proc(_In_ HWND window, UINT message, WPARAM w_para
     return return_value;
 }
 
-Scoped_gl_context create_gl_context(_In_ HDC device_context)
+_Use_decl_annotations_
+Scoped_gl_context create_gl_context(HDC device_context)
 {
     const PIXELFORMATDESCRIPTOR descriptor =
     {
@@ -225,7 +228,8 @@ Scoped_gl_context create_gl_context(_In_ HDC device_context)
     return make_scoped_gl_context(rendering_context);
 }
 
-Scoped_current_context create_current_context(_In_ HDC device_context, _In_ HGLRC gl_context)
+_Use_decl_annotations_
+Scoped_current_context create_current_context(HDC device_context, HGLRC gl_context)
 {
     check_windows_error(wglMakeCurrent(device_context, gl_context));
 
@@ -242,7 +246,8 @@ static void delete_gl_context(_In_ HGLRC gl_context) noexcept
     }
 }
 
-Scoped_gl_context make_scoped_gl_context(_In_ HGLRC gl_context)
+_Use_decl_annotations_
+Scoped_gl_context make_scoped_gl_context(HGLRC gl_context)
 {
     return Scoped_gl_context(gl_context, std::function<void (HGLRC)>(delete_gl_context));
 }
@@ -259,7 +264,8 @@ static void clear_gl_context(_In_opt_ HGLRC gl_context) noexcept
     }
 }
 
-Scoped_current_context make_scoped_current_context(_In_ HGLRC gl_context)
+_Use_decl_annotations_
+Scoped_current_context make_scoped_current_context(HGLRC gl_context)
 {
     // TODO: I can't think of a better way than to pass a gl_context, even though it is unused.
     // A non-null variable is required for the deleter to be part of move construction.
