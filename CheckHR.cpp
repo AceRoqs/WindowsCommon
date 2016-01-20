@@ -20,16 +20,16 @@ HRESULT_exception::HRESULT_exception(HRESULT hr, const char* message) noexcept :
                            nullptr,
                            m_hr,
                            0,
-                           &system_message[0],
+                           system_message,
                            ARRAYSIZE(system_message),
                            nullptr))
     {
-        StringCchCopyW(&system_message[0], ARRAYSIZE(system_message), L"Unknown");
+        StringCchCopyW(system_message, ARRAYSIZE(system_message), L"Unknown");
     }
 
     WCHAR wide_error_string[1024];
-    StringCchPrintfW(&wide_error_string[0], ARRAYSIZE(wide_error_string), L"Error: %08x: %s", m_hr, &system_message[0]);
-    const int byte_count = WideCharToMultiByte(CP_UTF8, 0, &wide_error_string[0], -1, nullptr, 0, nullptr, nullptr);
+    StringCchPrintfW(wide_error_string, ARRAYSIZE(wide_error_string), L"Error: %08x: %s", m_hr, system_message);
+    const int byte_count = WideCharToMultiByte(CP_UTF8, 0, wide_error_string, -1, nullptr, 0, nullptr, nullptr);
 
     // Bound message_length to something reasonable to mitigate integer overflow potential on operator new.
     // byte_count includes null terminator.  message_length does not include null terminator.
@@ -44,7 +44,7 @@ HRESULT_exception::HRESULT_exception(HRESULT hr, const char* message) noexcept :
                 strcpy_s(utf8_error_string.get(), byte_count + message_length, message);
             }
 
-            if(WideCharToMultiByte(CP_UTF8, 0, &wide_error_string[0], -1, utf8_error_string.get() + message_length, byte_count, nullptr, nullptr) == byte_count)
+            if(WideCharToMultiByte(CP_UTF8, 0, wide_error_string, -1, utf8_error_string.get() + message_length, byte_count, nullptr, nullptr) == byte_count)
             {
                 std::swap(utf8_error_string, m_error_string);
             }
@@ -111,14 +111,14 @@ void HRESULT_exception::get_error_string(PTSTR error_string, size_t size) const 
                           nullptr,
                           m_hr,
                           0,
-                          &message[0],
+                          message,
                           ARRAYSIZE(message),
                           nullptr))
     {
-        StringCchCopy(&message[0], ARRAYSIZE(message), TEXT("Unknown"));
+        StringCchCopy(message, ARRAYSIZE(message), TEXT("Unknown"));
     }
 
-    StringCchPrintf(error_string, size, TEXT("Error: %08x: %s"), m_hr, &message[0]);
+    StringCchPrintf(error_string, size, TEXT("Error: %08x: %s"), m_hr, message);
 }
 
 const char* HRESULT_exception::what() const noexcept

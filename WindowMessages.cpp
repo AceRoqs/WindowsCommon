@@ -278,8 +278,8 @@ static void validate_message_map_all_entries_accessible(_In_reads_(map_size) con
 void debug_validate_message_map() noexcept
 {
 #ifndef NDEBUG
-    validate_message_map_sorted(&window_messages[0], ARRAYSIZE(window_messages));
-    validate_message_map_all_entries_accessible(&window_messages[0], ARRAYSIZE(window_messages));
+    validate_message_map_sorted(window_messages, ARRAYSIZE(window_messages));
+    validate_message_map_all_entries_accessible(window_messages, ARRAYSIZE(window_messages));
     assert(window_messages[ARRAYSIZE(window_messages) - 1].message < WM_USER);
 #endif
 }
@@ -298,7 +298,7 @@ PCSTR string_from_window_message(UINT message) noexcept
     {
         text = "WM_USER private message";
     }
-    else if(map_message_to_index(&window_messages[0], ARRAYSIZE(window_messages), message, &index))
+    else if(map_message_to_index(window_messages, ARRAYSIZE(window_messages), message, &index))
     {
         text = window_messages[index].text;
     }
