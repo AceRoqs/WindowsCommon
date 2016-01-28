@@ -153,7 +153,7 @@ _Use_decl_annotations_
 Scoped_device_context get_device_context(HWND window)
 {
     const auto device_context = GetDC(window);
-    CHECK_WITH_CUSTOM_HR(nullptr != device_context, E_FAIL);
+    CHECK_EXCEPTION(nullptr != device_context, u8"Device context is null.");
 
     return make_scoped_device_context(device_context, release_device_context_functor(window));
 }
@@ -204,7 +204,7 @@ _Use_decl_annotations_
 Scoped_font select_font(HFONT font, HDC device_context)
 {
     const auto old_font = static_cast<HFONT>(SelectObject(device_context, static_cast<HGDIOBJ>(font)));
-    CHECK_WITH_CUSTOM_HR(old_font != nullptr, E_FAIL);
+    CHECK_EXCEPTION(old_font != nullptr, u8"Font handle is null.");
 
     return make_scoped_font(old_font, select_object_functor(device_context));
 }
@@ -213,7 +213,7 @@ _Use_decl_annotations_
 Scoped_font create_font_indirect(LOGFONT* log_font)
 {
     const HFONT font = CreateFontIndirectW(log_font);
-    CHECK_WITH_CUSTOM_HR(font != nullptr, E_FAIL);
+    CHECK_EXCEPTION(font != nullptr, u8"Font handle is null.");
 
     return make_scoped_font(font);
 }
@@ -222,7 +222,7 @@ _Use_decl_annotations_
 Scoped_device_context begin_paint(HWND window, PAINTSTRUCT* paint_struct)
 {
     const auto device_context = BeginPaint(window, paint_struct);
-    CHECK_WITH_CUSTOM_HR(device_context != nullptr, E_FAIL);
+    CHECK_EXCEPTION(device_context != nullptr, u8"Device context is null.");
 
     return make_scoped_device_context(device_context, end_paint_functor(window, paint_struct));
 }

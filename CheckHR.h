@@ -7,7 +7,7 @@ namespace WindowsCommon
 class HRESULT_exception : public std::exception
 {
 public:
-    HRESULT_exception(HRESULT hr, _In_opt_z_ const char* message = nullptr) noexcept;
+    HRESULT_exception(HRESULT hr) noexcept;
     HRESULT_exception(const HRESULT_exception& that) noexcept;
     HRESULT_exception& operator=(const HRESULT_exception& that) noexcept;
 
@@ -22,14 +22,12 @@ private:
 };
 
 HRESULT hresult_from_last_error() noexcept;
-void check_hr(HRESULT hr, _In_opt_z_ const char* message = nullptr);
-void check_windows_error(BOOL result, _In_opt_z_ const char* message = nullptr);
-void check_with_custom_hr(BOOL result, HRESULT hr, _In_opt_z_ const char* message = nullptr);
+void check_hr(HRESULT hr);
+void check_windows_error(BOOL result);
 
 // These macros should only be used to work around static analysis warnings.
 // TODO: Passing a function as expr is not valid.  Check this.
 #define CHECK_WINDOWS_ERROR(expr) { WindowsCommon::check_windows_error(expr); _Analysis_assume_(expr); }
-#define CHECK_WITH_CUSTOM_HR(expr, hr) { WindowsCommon::check_with_custom_hr(expr, hr); _Analysis_assume_(expr); }
 
 } // namespace WindowsCommon
 

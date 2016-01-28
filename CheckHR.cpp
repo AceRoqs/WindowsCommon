@@ -6,14 +6,12 @@ namespace WindowsCommon
 {
 
 _Use_decl_annotations_
-HRESULT_exception::HRESULT_exception(HRESULT hr, const char* message) noexcept : m_hr(hr), m_error_string(nullptr)
+HRESULT_exception::HRESULT_exception(HRESULT hr) noexcept : m_hr(hr), m_error_string(nullptr)
 {
 #ifdef _D3D9_H_
     // D3D errors should use D3D9_exception.
     assert(HRESULT_FACILITY(m_hr) != _FACD3D);
 #endif
-
-    const size_t message_length = message == nullptr ? 0 : strlen(message);
 
     WCHAR system_message[128];
     if(0 == FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -32,19 +30,14 @@ HRESULT_exception::HRESULT_exception(HRESULT hr, const char* message) noexcept :
     const int byte_count = WideCharToMultiByte(CP_UTF8, 0, wide_error_string, -1, nullptr, 0, nullptr, nullptr);
 
     // Bound message_length to something reasonable to mitigate integer overflow potential on operator new.
-    // byte_count includes null terminator.  message_length does not include null terminator.
-    if((byte_count > 0) && (message_length < ARRAYSIZE(wide_error_string)))
+    // byte_count includes null terminator.
+    if(byte_count > 0)
     {
         // Allow the possibility of memory failure in this exception, as this matches the behavior of MSVC CRT.
-        std::unique_ptr<char[]> utf8_error_string(new(std::nothrow) char[byte_count + message_length]);
+        std::unique_ptr<char[]> utf8_error_string(new(std::nothrow) char[byte_count]);
         if(utf8_error_string != nullptr)
         {
-            if(message != nullptr)
-            {
-                strcpy_s(utf8_error_string.get(), byte_count + message_length, message);
-            }
-
-            if(WideCharToMultiByte(CP_UTF8, 0, wide_error_string, -1, utf8_error_string.get() + message_length, byte_count, nullptr, nullptr) == byte_count)
+            if(WideCharToMultiByte(CP_UTF8, 0, wide_error_string, -1, utf8_error_string.get(), byte_count, nullptr, nullptr) == byte_count)
             {
                 std::swap(utf8_error_string, m_error_string);
             }
@@ -135,7 +128,7 @@ HRESULT hresult_from_last_error() noexcept
     return hr;
 }
 
-static void debug_HRESULT_exception(HRESULT hr, _In_opt_z_ const char* message)
+static void debug_HRESULT_exception(HRESULT hr)
 {
 #if defined(_MSC_VER) && !defined(NDEBUG)
         // Work around MSVC issue where the abort() message box is displayed instead of the assert messagebox.
@@ -147,37 +140,24 @@ static void debug_HRESULT_exception(HRESULT hr, _In_opt_z_ const char* message)
         // Force break.
         assert(false);
 
-        throw HRESULT_exception(hr, message);
+        throw HRESULT_exception(hr);
 }
 
-_Use_decl_annotations_
-void check_hr(HRESULT hr, const char* message)
+void check_hr(HRESULT hr)
 {
     if(FAILED(hr))
     {
-        debug_HRESULT_exception(hr, message);
+        debug_HRESULT_exception(hr);
     }
 }
 
-_Use_decl_annotations_
-void check_windows_error(BOOL result, const char* message)
+void check_windows_error(BOOL result)
 {
     if(!result)
     {
         HRESULT hr = hresult_from_last_error();
         assert(FAILED(hr));
-        debug_HRESULT_exception(hr, message);
-    }
-}
-
-// TODO: This should go away when an extended check_exception is introduced.
-_Use_decl_annotations_
-void check_with_custom_hr(BOOL result, HRESULT hr, const char* message)
-{
-    assert(FAILED(hr));
-    if(!result)
-    {
-        debug_HRESULT_exception(hr, message);
+        debug_HRESULT_exception(hr);
     }
 }
 

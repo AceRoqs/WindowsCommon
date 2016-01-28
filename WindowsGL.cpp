@@ -1,6 +1,7 @@
 #include "PreCompile.h"
 #include "WindowsGL.h"      // Pick up forward declarations to ensure correctness.
 #include "CheckHR.h"
+#include <PortableRuntime/CheckException.h>     // TODO: Can this be removed?
 #include <PortableRuntime/Tracing.h>
 
 namespace WindowsCommon
@@ -128,7 +129,7 @@ OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool window
 
     // TODO: 2014: This message text is good - find some way to pass this via the exception.
     //MessageBox(window, TEXT("3D Engine demo requires 32-bit color."), TEXT("System requirements"), MB_OK);
-    check_with_custom_hr(is_window_32bits_per_pixel(m_state.window), E_FAIL);
+    CHECK_EXCEPTION(is_window_32bits_per_pixel(m_state.window), u8"Window is not 32bpp.");
 
     m_state.device_context = get_device_context(m_state.window);
     m_state.gl_context = create_gl_context(m_state.device_context);
