@@ -25,9 +25,25 @@ HRESULT hresult_from_last_error() noexcept;
 void check_hr(HRESULT hr);
 void check_windows_error(BOOL result);
 
-// These macros should only be used to work around static analysis warnings.
-// TODO: Passing a function as expr is not valid.  Check this.
-#define CHECK_WINDOWS_ERROR(expr) { WindowsCommon::check_windows_error(expr); _Analysis_assume_(expr); }
+// Macros allow for usage of __FILE__ and __LINE__.
+#define CHECK_HR(zzz_expr)                              \
+{                                                       \
+    const HRESULT zzz_val = (zzz_expr);                 \
+    if(FAILED(zzz_val))                                 \
+    {                                                   \
+        WindowsCommon::check_hr(zzz_val);               \
+    }                                                   \
+}
+
+#define CHECK_WINDOWS_ERROR(zzz_expr)                   \
+{                                                       \
+    const bool zzz_val = (zzz_expr);                    \
+    if(!zzz_val)                                        \
+    {                                                   \
+        WindowsCommon::check_windows_error(zzz_val);    \
+    }                                                   \
+    _Analysis_assume_((zzz_expr));                      \
+}
 
 } // namespace WindowsCommon
 

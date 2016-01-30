@@ -5,7 +5,6 @@
 namespace WindowsCommon
 {
 
-_Use_decl_annotations_
 HRESULT_exception::HRESULT_exception(HRESULT hr) noexcept : m_hr(hr), m_error_string(nullptr)
 {
 #ifdef _D3D9_H_
