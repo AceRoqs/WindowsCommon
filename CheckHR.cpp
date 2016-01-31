@@ -120,44 +120,11 @@ const char* HRESULT_exception::what() const noexcept
 
 HRESULT hresult_from_last_error() noexcept
 {
-    DWORD error = GetLastError();
-    HRESULT hr = HRESULT_FROM_WIN32(error);
+    const DWORD error = GetLastError();
+    const HRESULT hr = HRESULT_FROM_WIN32(error);
     assert(FAILED(hr));
 
     return hr;
-}
-
-static void debug_HRESULT_exception(HRESULT hr)
-{
-#if defined(_MSC_VER) && !defined(NDEBUG)
-        // Work around MSVC issue where the abort() message box is displayed instead of the assert messagebox.
-        // This makes the abort/retry/ignore of the dialog not work for the "ignore" case.  Since the abort dialog is called
-        // even for console apps where blocking for a GUI response is not ideal, just mimic the behavior as it is no worse.
-        // This also has the nice side effect of printing error information to the debugger window.
-        _set_error_mode(_OUT_TO_MSGBOX);
-#endif
-        // Force break.
-        assert(false);
-
-        throw HRESULT_exception(hr);
-}
-
-void check_hr(HRESULT hr)
-{
-    if(FAILED(hr))
-    {
-        debug_HRESULT_exception(hr);
-    }
-}
-
-void check_windows_error(BOOL result)
-{
-    if(!result)
-    {
-        HRESULT hr = hresult_from_last_error();
-        assert(FAILED(hr));
-        debug_HRESULT_exception(hr);
-    }
 }
 
 } // namespace WindowsCommon

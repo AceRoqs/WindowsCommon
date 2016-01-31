@@ -22,27 +22,26 @@ private:
 };
 
 HRESULT hresult_from_last_error() noexcept;
-void check_hr(HRESULT hr);
-void check_windows_error(BOOL result);
 
 // Macros allow for usage of __FILE__ and __LINE__.
-#define CHECK_HR(zzz_expr)                              \
-{                                                       \
-    const HRESULT zzz_val = (zzz_expr);                 \
-    if(FAILED(zzz_val))                                 \
-    {                                                   \
-        WindowsCommon::check_hr(zzz_val);               \
-    }                                                   \
+#define CHECK_HR(zzz_expr)                                              \
+{                                                                       \
+    const HRESULT zzz_val = (zzz_expr);                                 \
+    if(FAILED(zzz_val))                                                 \
+    {                                                                   \
+        throw WindowsCommon::HRESULT_exception(zzz_val);                \
+    }                                                                   \
 }
 
-#define CHECK_BOOL_LAST_ERROR(zzz_expr)                 \
-{                                                       \
-    const bool zzz_val = !!(zzz_expr);                  \
-    if(!zzz_val)                                        \
-    {                                                   \
-        WindowsCommon::check_windows_error(zzz_val);    \
-    }                                                   \
-    _Analysis_assume_((zzz_expr));                      \
+#define CHECK_BOOL_LAST_ERROR(zzz_expr)                                 \
+{                                                                       \
+    const bool zzz_val = !!(zzz_expr);                                  \
+    if(!zzz_val)                                                        \
+    {                                                                   \
+        const auto zzz_hr = WindowsCommon::hresult_from_last_error();   \
+        throw WindowsCommon::HRESULT_exception(zzz_hr);                 \
+    }                                                                   \
+    _Analysis_assume_((zzz_expr));                                      \
 }
 
 } // namespace WindowsCommon
