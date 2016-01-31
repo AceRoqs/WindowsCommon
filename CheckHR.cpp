@@ -5,8 +5,12 @@
 namespace WindowsCommon
 {
 
-HRESULT_exception::HRESULT_exception(HRESULT hr) noexcept : m_hr(hr), m_error_string(nullptr)
+_Use_decl_annotations_
+HRESULT_exception::HRESULT_exception(HRESULT hr, const char* file_name, int line) noexcept : m_hr(hr), m_error_string(nullptr)
 {
+    (void)(file_name);
+    (void)(line);
+
 #ifdef _D3D9_H_
     // D3D errors should use D3D9_exception.
     assert(HRESULT_FACILITY(m_hr) != _FACD3D);
