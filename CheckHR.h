@@ -1,24 +1,18 @@
 #pragma once
 
+#include <PortableRuntime/CheckException.h>
+
 namespace WindowsCommon
 {
 
-// TODO: Consider making this class private once get_error_string is removed.
-class HRESULT_exception : public std::exception
+// TODO: Consider making this class private.
+class HRESULT_exception : public PortableRuntime::Exception
 {
-public:
-    HRESULT_exception(HRESULT hr, _In_z_ const char* file_name, int line) noexcept;
-    HRESULT_exception(const HRESULT_exception& that) noexcept;
-    HRESULT_exception& operator=(const HRESULT_exception& that) noexcept;
-
-    // Define a method besides exception::what() that doesn't require heap memory allocation.
-    virtual void get_error_string(_Out_writes_z_(size) PTSTR error_string, size_t size) const noexcept;
-    virtual const char* what() const noexcept override;
-
+protected:
     HRESULT m_hr;
 
-private:
-    std::unique_ptr<char[]> m_error_string;
+public:
+    HRESULT_exception(HRESULT hr, _In_z_ const char* file_name, int line) noexcept;
 };
 
 HRESULT hresult_from_last_error() noexcept;
