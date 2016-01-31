@@ -102,7 +102,7 @@ Scoped_atom register_window_class(const WNDCLASSEXW& window_class)
     {
         HRESULT hr = hresult_from_last_error();
         assert(HRESULT_FROM_WIN32(ERROR_CLASS_ALREADY_EXISTS) != hr);
-        check_hr(hr);
+        CHECK_HR(hr);
     }
 
     return make_scoped_window_class(atom, window_class.hInstance);
@@ -126,7 +126,7 @@ Scoped_window create_window(
     const auto window_name_utf16 = PortableRuntime::utf16_from_utf8(window_name);
     const auto window = CreateWindowW(class_name_utf16.c_str(), window_name_utf16.c_str(), style, x, y, width, height, parent, menu, instance, param);
 
-    CHECK_WINDOWS_ERROR(nullptr != window);
+    CHECK_BOOL_LAST_ERROR(nullptr != window);
 
     return make_scoped_window(window);
 }
@@ -176,7 +176,7 @@ Scoped_handle create_file(
                                     flags,
                                     template_file);
 
-    check_windows_error(INVALID_HANDLE_VALUE != handle);
+    CHECK_BOOL_LAST_ERROR(INVALID_HANDLE_VALUE != handle);
 
     return make_scoped_handle(handle);
 }
@@ -193,7 +193,7 @@ Scoped_handle create_event(
                                      initial_state,
                                      name != nullptr ? PortableRuntime::utf16_from_utf8(name).c_str() : nullptr);
 
-    check_windows_error(INVALID_HANDLE_VALUE != handle);
+    CHECK_BOOL_LAST_ERROR(INVALID_HANDLE_VALUE != handle);
     assert(handle != 0);    // Per Win32 contract.
     _Analysis_assume_(handle != 0);
 

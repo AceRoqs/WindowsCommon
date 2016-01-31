@@ -35,9 +35,9 @@ void check_windows_error(BOOL result);
     }                                                   \
 }
 
-#define CHECK_WINDOWS_ERROR(zzz_expr)                   \
+#define CHECK_BOOL_LAST_ERROR(zzz_expr)                 \
 {                                                       \
-    const bool zzz_val = (zzz_expr);                    \
+    const bool zzz_val = !!(zzz_expr);                  \
     if(!zzz_val)                                        \
     {                                                   \
         WindowsCommon::check_windows_error(zzz_val);    \

@@ -219,12 +219,12 @@ Scoped_gl_context create_gl_context(HDC device_context)
     };
 
     const int pixel_format = ChoosePixelFormat(device_context, &descriptor);
-    check_windows_error(pixel_format != 0);
+    CHECK_BOOL_LAST_ERROR(pixel_format != 0);
 
-    check_windows_error(SetPixelFormat(device_context, pixel_format, &descriptor));
+    CHECK_BOOL_LAST_ERROR(SetPixelFormat(device_context, pixel_format, &descriptor));
 
     const auto rendering_context = wglCreateContext(device_context);
-    CHECK_WINDOWS_ERROR(nullptr != rendering_context);
+    CHECK_BOOL_LAST_ERROR(nullptr != rendering_context);
 
     return make_scoped_gl_context(rendering_context);
 }
@@ -232,7 +232,7 @@ Scoped_gl_context create_gl_context(HDC device_context)
 _Use_decl_annotations_
 Scoped_current_context create_current_context(HDC device_context, HGLRC gl_context)
 {
-    check_windows_error(wglMakeCurrent(device_context, gl_context));
+    CHECK_BOOL_LAST_ERROR(wglMakeCurrent(device_context, gl_context));
 
     return make_scoped_current_context(gl_context);
 }
