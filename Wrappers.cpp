@@ -100,7 +100,7 @@ Scoped_atom register_window_class(const WNDCLASSEXW& window_class)
 
     if(0 == atom)
     {
-        HRESULT hr = hresult_from_last_error();
+        const auto hr = hresult_from_last_error();
         assert(HRESULT_FROM_WIN32(ERROR_CLASS_ALREADY_EXISTS) != hr);
         CHECK_HR(hr);
     }

@@ -241,7 +241,7 @@ static void delete_gl_context(_In_ HGLRC gl_context) noexcept
 {
     if(!wglDeleteContext(gl_context))
     {
-        auto hr = hresult_from_last_error();
+        const auto hr = hresult_from_last_error();
         (hr);
         assert(SUCCEEDED(hr));
     }
@@ -259,7 +259,7 @@ static void clear_gl_context(_In_opt_ HGLRC gl_context) noexcept
 
     if(!wglMakeCurrent(nullptr, nullptr))
     {
-        HRESULT hr = hresult_from_last_error();
+        const auto hr = hresult_from_last_error();
         (hr);
         assert(SUCCEEDED(hr));
     }

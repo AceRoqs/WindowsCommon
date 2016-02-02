@@ -48,7 +48,7 @@ HRESULT_exception::HRESULT_exception(HRESULT hr, const char* file_name, int line
 HRESULT hresult_from_last_error() noexcept
 {
     const DWORD error = GetLastError();
-    const HRESULT hr = HRESULT_FROM_WIN32(error);
+    const auto hr = HRESULT_FROM_WIN32(error);
     assert(FAILED(hr));
 
     return hr;
