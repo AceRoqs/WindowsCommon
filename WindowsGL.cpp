@@ -26,6 +26,7 @@ static std::vector<std::string> tokenize_string(_In_z_ const char* str, _In_z_ c
     // Handle case where delimiter is not in string (usually the final token).
     if(begin < end)
     {
+        tokens.emplace_back(begin);
     }
 
     return tokens;
