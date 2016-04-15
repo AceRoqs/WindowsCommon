@@ -19,14 +19,13 @@ static std::vector<std::string> tokenize_string(_In_z_ const char* str, _In_z_ c
     const char* iter;
     while((iter = std::find_first_of(begin, end, delimiters, delimiters_end)) != end)
     {
-        tokens.push_back(std::string(begin, iter - begin));
+        tokens.emplace_back(std::string(begin, iter - begin));
         begin = iter + 1;
     }
 
     // Handle case where delimiter is not in string (usually the final token).
     if(begin < end)
     {
-        tokens.push_back(std::string(begin));
     }
 
     return tokens;
