@@ -255,7 +255,7 @@ Scoped_gl_context make_scoped_gl_context(HGLRC gl_context)
 
 static void clear_gl_context(_In_opt_ HGLRC gl_context) noexcept
 {
-    UNREFERENCED_PARAMETER(gl_context);
+    (void)gl_context;   // Unreferenced parameter.
 
     if(!wglMakeCurrent(nullptr, nullptr))
     {

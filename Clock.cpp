@@ -17,13 +17,13 @@ Clock::Clock() noexcept
     BOOL supported = QueryPerformanceFrequency(&m_frequency);
 
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms644905(v=vs.85).aspx
-    UNREFERENCED_PARAMETER(supported);
+    (void)supported;    // Prevent unreferenced parameter in Release build.
     assert(supported);  // On WinXP+, QueryPerformanceFrequency will always succeed (per MSDN).
 
     supported = QueryPerformanceCounter(&m_last_counter);
 
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms644904(v=vs.85).aspx
-    UNREFERENCED_PARAMETER(supported);
+    (void)supported;    // Prevent unreferenced parameter in Release build.
     assert(supported);  // On WinXP+, QueryPerformanceCounter will always succeed (per MSDN).
 }
 
@@ -33,7 +33,7 @@ float Clock::ellapsed_milliseconds() noexcept
     const BOOL supported = QueryPerformanceCounter(&current_counter);
 
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms644904(v=vs.85).aspx
-    UNREFERENCED_PARAMETER(supported);
+    (void)supported;    // Prevent unreferenced parameter in Release build.
     assert(supported);  // On WinXP+, QueryPerformanceCounter will always succeed (per MSDN).
 
     LARGE_INTEGER counter_diff;

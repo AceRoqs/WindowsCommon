@@ -68,7 +68,7 @@ std::function<void (HDC)> end_paint_functor(HWND window, PAINTSTRUCT* paint_stru
 {
     return [=](HDC device_context)
     {
-        UNREFERENCED_PARAMETER(device_context);
+        (void)device_context;   // Unreferenced parameter.
         EndPaint(window, paint_struct);
     };
 }
