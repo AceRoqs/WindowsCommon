@@ -97,5 +97,14 @@ Scoped_font make_scoped_font(_In_ HFONT font, std::function<void (HFONT)> delete
 
 Scoped_local make_scoped_local(_In_ HLOCAL local);
 
+class UTF8_console_code_page
+{
+    UINT m_code_page;
+
+public:
+    UTF8_console_code_page();
+    ~UTF8_console_code_page();
+};
+
 }
 
