@@ -11,9 +11,11 @@ class Scoped_FPU_exception_control
     unsigned int m_original_control;
     unsigned int m_exception_mask;
 
-    // Prevent copy.
+    // Not implemented to prevent accidental copying/moving.
     Scoped_FPU_exception_control& operator=(const Scoped_FPU_exception_control&) = delete;
     Scoped_FPU_exception_control(const Scoped_FPU_exception_control&) = delete;
+    Scoped_FPU_exception_control(const Scoped_FPU_exception_control&&) = delete;
+    Scoped_FPU_exception_control& operator=(Scoped_FPU_exception_control&&) = delete;
 
 public:
     Scoped_FPU_exception_control(unsigned int exception_mask);

@@ -31,13 +31,16 @@ protected:
     bool is_in_hit_rect(LONG x, LONG y);
 
 private:
-    HWND m_window;
-    HFONT m_font;
+    HWND m_window {};
+    HFONT m_font {};
     std::wstring m_link_name;
 
-    // Not implemented to prevent accidental copying.
+    // Not implemented to prevent accidental copying/moving.  The risk on copy/move is
+    // that the original may be inadvertantly destroyed before the HWND itself is.
     Hyperlink_control(const Hyperlink_control&) = delete;
+    Hyperlink_control(const Hyperlink_control&&) = delete;
     Hyperlink_control& operator=(const Hyperlink_control&) = delete;
+    Hyperlink_control& operator=(const Hyperlink_control&&) = delete;
 
     // Required to avoid making window_proc public to all.
     friend Scoped_atom register_hyperlink_class(_In_ HINSTANCE instance);
@@ -71,8 +74,7 @@ static bool is_link_length_valid(const std::wstring& link_name) noexcept
 
 _Use_decl_annotations_
 Hyperlink_control::Hyperlink_control(HWND window) noexcept :
-    m_window(window),
-    m_font(nullptr)
+    m_window(window)
 {
     assert(INVALID_HANDLE_VALUE != window);
 }

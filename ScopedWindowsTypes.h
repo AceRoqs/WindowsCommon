@@ -9,7 +9,7 @@ class Scoped_resource
     DELETER m_deleter;
     RESOURCE m_resource;
 
-    // Prevent copy.
+    // Not implemented to prevent accidental copying.
     Scoped_resource& operator=(const Scoped_resource&) = delete;
     Scoped_resource(const Scoped_resource&) = delete;
 
@@ -103,7 +103,7 @@ class UTF8_console_code_page
 
 public:
     UTF8_console_code_page();
-    ~UTF8_console_code_page();
+    ~UTF8_console_code_page() noexcept;
 };
 
 }

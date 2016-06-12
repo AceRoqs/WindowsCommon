@@ -100,7 +100,7 @@ OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool window
     }
     else
     {
-        DEVMODEW DevMode = {};
+        DEVMODEW DevMode {};
         DevMode.dmSize = sizeof(DEVMODE);
         DevMode.dmBitsPerPel = 32;
         DevMode.dmPelsWidth = 640;

@@ -159,7 +159,8 @@ UTF8_console_code_page::UTF8_console_code_page()
     // Even a simple program like the following will not behave identically on all platforms:
     //  #include <cstdio>
     //  int main(int argc, char** argv) {
-    //      printf("%s\n", argv[0]);    // If argv[0] has non-ASCII characters, the behavior differs.
+    //      printf("%s\n", argv[0]);    // If argv[0] has non-ASCII characters,
+    //                                  // the behavior differs across platforms.
     //      return 0;
     //  }
     //

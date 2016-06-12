@@ -9,10 +9,10 @@ namespace WindowsCommon
 class HRESULT_exception : public PortableRuntime::Exception
 {
 protected:
-    HRESULT m_hr;
+    HRESULT m_hr {S_OK};
 
 public:
-    HRESULT_exception(HRESULT hr, _In_z_ const char* file_name, int line) noexcept;
+    explicit HRESULT_exception(HRESULT hr, _In_z_ const char* file_name, int line) noexcept;
 };
 
 HRESULT hresult_from_last_error() noexcept;
