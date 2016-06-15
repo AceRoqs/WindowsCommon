@@ -15,6 +15,7 @@ class Hyperlink_control
 {
 public:
     Hyperlink_control(_In_ HWND window) noexcept;
+    ~Hyperlink_control() noexcept = default;
 
 protected:
     static LRESULT CALLBACK window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept;
@@ -38,9 +39,9 @@ private:
     // Not implemented to prevent accidental copying/moving.  The risk on copy/move is
     // that the original may be inadvertantly destroyed before the HWND itself is.
     Hyperlink_control(const Hyperlink_control&) = delete;
-    Hyperlink_control(const Hyperlink_control&&) = delete;
+    Hyperlink_control(Hyperlink_control&&) noexcept = delete;
     Hyperlink_control& operator=(const Hyperlink_control&) = delete;
-    Hyperlink_control& operator=(const Hyperlink_control&&) = delete;
+    Hyperlink_control& operator=(Hyperlink_control&&) noexcept = delete;
 
     // Required to avoid making window_proc public to all.
     friend Scoped_atom register_hyperlink_class(_In_ HINSTANCE instance);

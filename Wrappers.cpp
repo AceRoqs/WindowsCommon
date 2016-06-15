@@ -61,7 +61,7 @@ Window_class::Window_class(UINT style, WNDPROC window_proc, int class_extra, int
     m_window_class.hIconSm       = small_icon;
 }
 
-Window_class::Window_class(const Window_class&& other) noexcept :
+Window_class::Window_class(Window_class&& other) noexcept :
     m_window_class(other.m_window_class),
     m_menu_name(std::move(other.m_menu_name)),
     m_class_name(std::move(other.m_class_name))
