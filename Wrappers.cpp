@@ -43,7 +43,7 @@ LRESULT CALLBACK Window_procedure::static_window_proc(HWND window, UINT message,
 
 _Use_decl_annotations_
 Window_class::Window_class(UINT style, WNDPROC window_proc, int class_extra, int window_extra, HINSTANCE instance, HICON icon, HCURSOR cursor,
-    HBRUSH background, PCSTR menu_name, PCSTR class_name, HICON small_icon) :
+                           HBRUSH background, PCSTR menu_name, PCSTR class_name, HICON small_icon) :
     m_menu_name(menu_name ? PortableRuntime::utf16_from_utf8(menu_name) : L""),
     m_class_name(PortableRuntime::utf16_from_utf8(class_name))
 {
@@ -62,9 +62,9 @@ Window_class::Window_class(UINT style, WNDPROC window_proc, int class_extra, int
 }
 
 Window_class::Window_class(Window_class&& other) noexcept :
-    m_window_class(other.m_window_class),
     m_menu_name(std::move(other.m_menu_name)),
-    m_class_name(std::move(other.m_class_name))
+    m_class_name(std::move(other.m_class_name)),
+    m_window_class(other.m_window_class)
 {
     m_window_class.lpszMenuName  = m_menu_name.length() > 0 ? m_menu_name.c_str() : nullptr;
     m_window_class.lpszClassName = m_class_name.c_str();

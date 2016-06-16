@@ -6,16 +6,27 @@
 namespace WindowsCommon
 {
 
-PCWSTR get_hyperlink_control_class() noexcept
+static bool is_link_length_valid(const std::wstring& link_name) noexcept
 {
-    return HYPERLINK_CONTROL_CLASS;
+    return link_name.length() < INT_MAX;
 }
 
+// TODO: 2016: Consider integrating this with a base class.
 class Hyperlink_control
 {
-public:
-    Hyperlink_control(_In_ HWND window) noexcept;
-    ~Hyperlink_control() noexcept = default;
+    HWND m_window{};
+    HFONT m_font{};
+    std::wstring m_link_name{};
+
+    // Not implemented to prevent accidental copying/moving.  The risk on copy/move is
+    // that the original may be inadvertantly destroyed before the HWND itself is.
+    Hyperlink_control(const Hyperlink_control&) = delete;
+    Hyperlink_control(Hyperlink_control&&) noexcept = delete;
+    Hyperlink_control& operator=(const Hyperlink_control&) = delete;
+    Hyperlink_control& operator=(Hyperlink_control&&) noexcept = delete;
+
+    // Required to avoid making window_proc public to all.
+    friend Scoped_atom register_hyperlink_class(_In_ HINSTANCE instance);
 
 protected:
     static LRESULT CALLBACK window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept;
@@ -31,54 +42,10 @@ protected:
     RECT get_hit_rect(_In_ HDC device_context);
     bool is_in_hit_rect(LONG x, LONG y);
 
-private:
-    HWND m_window {};
-    HFONT m_font {};
-    std::wstring m_link_name;
-
-    // Not implemented to prevent accidental copying/moving.  The risk on copy/move is
-    // that the original may be inadvertantly destroyed before the HWND itself is.
-    Hyperlink_control(const Hyperlink_control&) = delete;
-    Hyperlink_control(Hyperlink_control&&) noexcept = delete;
-    Hyperlink_control& operator=(const Hyperlink_control&) = delete;
-    Hyperlink_control& operator=(Hyperlink_control&&) noexcept = delete;
-
-    // Required to avoid making window_proc public to all.
-    friend Scoped_atom register_hyperlink_class(_In_ HINSTANCE instance);
+public:
+    Hyperlink_control(_In_ HWND window) noexcept;
+    ~Hyperlink_control() noexcept = default;
 };
-
-_Use_decl_annotations_
-Scoped_atom register_hyperlink_class(HINSTANCE instance)
-{
-    // This window class was derived by calling GetClassInfo on a 'static' control.
-    WNDCLASSEXW window_class;
-    window_class.cbSize        = sizeof(window_class);
-    window_class.style         = CS_GLOBALCLASS | CS_PARENTDC | CS_DBLCLKS;
-    window_class.lpfnWndProc   = Hyperlink_control::window_proc;
-    window_class.cbClsExtra    = 0;
-    window_class.cbWndExtra    = 0;
-    window_class.hInstance     = instance;
-    window_class.hIcon         = nullptr;
-    window_class.hCursor       = LoadCursorW(nullptr, IDC_ARROW);
-    window_class.hbrBackground = nullptr;
-    window_class.lpszMenuName  = nullptr;
-    window_class.lpszClassName = get_hyperlink_control_class();
-    window_class.hIconSm       = 0;
-
-    return register_window_class(window_class);
-}
-
-static bool is_link_length_valid(const std::wstring& link_name) noexcept
-{
-    return link_name.length() < INT_MAX;
-}
-
-_Use_decl_annotations_
-Hyperlink_control::Hyperlink_control(HWND window) noexcept :
-    m_window(window)
-{
-    assert(INVALID_HANDLE_VALUE != window);
-}
 
 _Use_decl_annotations_
 LRESULT CALLBACK Hyperlink_control::window_proc(
@@ -398,6 +365,39 @@ bool Hyperlink_control::is_in_hit_rect(LONG x, LONG y)
     }
 
     return is_in_hit_rect;
+}
+
+_Use_decl_annotations_
+Hyperlink_control::Hyperlink_control(HWND window) noexcept :
+    m_window(window)
+{
+    assert(INVALID_HANDLE_VALUE != window);
+}
+
+PCWSTR get_hyperlink_control_class() noexcept
+{
+    return HYPERLINK_CONTROL_CLASS;
+}
+
+_Use_decl_annotations_
+Scoped_atom register_hyperlink_class(HINSTANCE instance)
+{
+    // This window class was derived by calling GetClassInfo on a 'static' control.
+    WNDCLASSEXW window_class;
+    window_class.cbSize        = sizeof(window_class);
+    window_class.style         = CS_GLOBALCLASS | CS_PARENTDC | CS_DBLCLKS;
+    window_class.lpfnWndProc   = Hyperlink_control::window_proc;
+    window_class.cbClsExtra    = 0;
+    window_class.cbWndExtra    = 0;
+    window_class.hInstance     = instance;
+    window_class.hIcon         = nullptr;
+    window_class.hCursor       = LoadCursorW(nullptr, IDC_ARROW);
+    window_class.hbrBackground = nullptr;
+    window_class.lpszMenuName  = nullptr;
+    window_class.lpszClassName = get_hyperlink_control_class();
+    window_class.hIconSm       = 0;
+
+    return register_window_class(window_class);
 }
 
 }

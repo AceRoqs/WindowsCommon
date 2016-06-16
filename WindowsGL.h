@@ -21,17 +21,17 @@ struct WGL_state
 
 class OpenGL_window : public Window_procedure
 {
-public:
-    OpenGL_window(_In_ PCSTR window_title, _In_ HINSTANCE instance, bool windowed);
-    ~OpenGL_window() noexcept;
-
-    WGL_state m_state;
+    bool m_windowed{};
+    WGL_state m_state{};
 
 protected:
-    LRESULT window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept override;
+    virtual LRESULT window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept override;
 
-private:
-    bool m_windowed;
+public:
+    OpenGL_window(_In_ PCSTR window_title, _In_ HINSTANCE instance, bool windowed);
+    virtual ~OpenGL_window() noexcept override;
+
+    const WGL_state& state() const noexcept;
 };
 
 Scoped_gl_context create_gl_context(_In_ HDC device_context);

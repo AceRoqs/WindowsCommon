@@ -83,6 +83,51 @@ static bool is_window_32bits_per_pixel(_In_ HWND window)
     return true;
 }
 
+_Use_decl_annotations_
+LRESULT OpenGL_window::window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept
+{
+    LRESULT return_value = 0;
+
+    switch(message)
+    {
+        case WM_SIZE:
+        {
+            RECT client_rectangle;
+            GetClientRect(window, &client_rectangle);
+
+            glViewport(client_rectangle.left, client_rectangle.top, client_rectangle.right, client_rectangle.bottom);
+
+            break;
+        }
+
+        case WM_ERASEBKGND:
+        {
+            // Do not erase background, as the whole window area will be refreshed anyway.
+            break;
+        }
+
+        case WM_DESTROY:
+        {
+            m_state.make_current_context.invoke();
+            m_state.gl_context.invoke();
+            m_state.device_context.invoke();
+
+            // No need to invoke destructor of window, as that would dispatch another WM_DESTROY.
+            m_state.window.release();
+
+            break;
+        }
+
+        default:
+        {
+            return_value = DefWindowProc(window, message, w_param, l_param);
+            break;
+        }
+    }
+
+    return return_value;
+}
+
 // TODO: set window width/height if full screen
 _Use_decl_annotations_
 OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool windowed) : m_windowed(windowed)
@@ -147,49 +192,9 @@ OpenGL_window::~OpenGL_window() noexcept
     }
 }
 
-_Use_decl_annotations_
-LRESULT OpenGL_window::window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept
+const WGL_state& OpenGL_window::state() const noexcept
 {
-    LRESULT return_value = 0;
-
-    switch(message)
-    {
-        case WM_SIZE:
-        {
-            RECT client_rectangle;
-            GetClientRect(window, &client_rectangle);
-
-            glViewport(client_rectangle.left, client_rectangle.top, client_rectangle.right, client_rectangle.bottom);
-
-            break;
-        }
-
-        case WM_ERASEBKGND:
-        {
-            // Do not erase background, as the whole window area will be refreshed anyway.
-            break;
-        }
-
-        case WM_DESTROY:
-        {
-            m_state.make_current_context.invoke();
-            m_state.gl_context.invoke();
-            m_state.device_context.invoke();
-
-            // No need to invoke destructor of window, as that would dispatch another WM_DESTROY.
-            m_state.window.release();
-
-            break;
-        }
-
-        default:
-        {
-            return_value = DefWindowProc(window, message, w_param, l_param);
-            break;
-        }
-    }
-
-    return return_value;
+    return m_state;
 }
 
 _Use_decl_annotations_

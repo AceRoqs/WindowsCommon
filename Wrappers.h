@@ -7,25 +7,42 @@ namespace WindowsCommon
 
 class Window_procedure
 {
-public:
-    static LRESULT CALLBACK static_window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept;
+    // Not implemented to prevent accidental copying/moving.  The risk on copy/move is
+    // that the original may be inadvertantly destroyed before the HWND itself is.
+    Window_procedure(const Window_procedure&) = delete;
+    Window_procedure(Window_procedure&&) noexcept = delete;
+    Window_procedure& operator=(const Window_procedure&) = delete;
+    Window_procedure& operator=(Window_procedure&&) noexcept = delete;
 
 protected:
     virtual LRESULT window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept = 0;
+
+public:
+    Window_procedure() = default;
+    virtual ~Window_procedure() noexcept = default;
+    static LRESULT CALLBACK static_window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept;
 };
 
 class Window_class
 {
+    // Initialize strings first, as m_window_class will reference these by pointer.
+    std::wstring m_menu_name{};
+    std::wstring m_class_name{};
+
+    // m_window_class must be initialized in constructor body, so don't
+    // default init, to prevent double initialization.
+    WNDCLASSEXW m_window_class;
+
+    Window_class(const Window_class& other) noexcept = delete;
+    Window_class& operator=(const Window_class&) = delete;
+    Window_class& operator=(Window_class&&) noexcept = delete;
+
 public:
     Window_class(UINT style, _In_ WNDPROC window_proc, int class_extra, int window_extra, _In_ HINSTANCE instance, _In_opt_ HICON icon, _In_ HCURSOR cursor,
         _In_opt_ HBRUSH background, _In_opt_ PCSTR menu_name, _In_ PCSTR class_name, _In_opt_ HICON small_icon);
     Window_class(Window_class&& other) noexcept;
+    ~Window_class() noexcept = default;
     operator const WNDCLASSEXW&() const noexcept;
-
-private:
-    WNDCLASSEXW m_window_class;
-    std::wstring m_menu_name;
-    std::wstring m_class_name;
 };
 
 Window_class get_default_blank_window_class(_In_ HINSTANCE instance, _In_ WNDPROC window_proc, _In_ PCSTR window_class_name) noexcept;
