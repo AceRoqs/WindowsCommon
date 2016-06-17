@@ -11,7 +11,7 @@ Input_device::Input_device(HINSTANCE instance, HWND hwnd)
     // Create DirectInput keyboard device.
     Microsoft::WRL::ComPtr<IDirectInput8> direct_input;
     CHECK_HR(DirectInput8Create(instance, DIRECTINPUT_VERSION, IID_IDirectInput8, reinterpret_cast<PVOID*>(direct_input.GetAddressOf()), nullptr));
-    CHECK_HR(direct_input->CreateDevice(GUID_SysKeyboard, &m_device, nullptr));
+    CHECK_HR(direct_input->CreateDevice(GUID_SysKeyboard, m_device.GetAddressOf(), nullptr));
 
     assert(c_dfDIKeyboard.dwDataSize == keyboard_buffer_size);
     CHECK_HR(m_device->SetDataFormat(&c_dfDIKeyboard));
