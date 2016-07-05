@@ -12,8 +12,6 @@ static LONGLONG milliseconds_from_seconds(LONGLONG seconds)
 
 Clock::Clock() noexcept
 {
-    m_last_counter.QuadPart = 0;
-
     BOOL supported = QueryPerformanceFrequency(&m_frequency);
 
     // http://msdn.microsoft.com/en-us/library/windows/desktop/ms644905(v=vs.85).aspx
