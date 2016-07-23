@@ -17,10 +17,11 @@ LRESULT CALLBACK Window_procedure::static_window_proc(HWND window, UINT message,
     // Sent by CreateWindow.
     if(message == WM_NCCREATE)
     {
-        CREATESTRUCT* create_struct = reinterpret_cast<CREATESTRUCT*>(l_param);
+        const auto create_struct = reinterpret_cast<const CREATESTRUCT*>(l_param);
 
         // This function should never fail.
-        const auto app = reinterpret_cast<Window_procedure*>(create_struct->lpCreateParams);
+        const auto app = reinterpret_cast<const Window_procedure*>(create_struct->lpCreateParams);
+        assert(app != nullptr);     // Confirm that instance was passed to CreateWindow.
         SetWindowLongPtrW(window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(app));
     }
 

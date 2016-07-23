@@ -132,8 +132,8 @@ LRESULT OpenGL_window::window_proc(HWND window, UINT message, WPARAM w_param, LP
 _Use_decl_annotations_
 OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool windowed) : m_windowed(windowed)
 {
-    const int window_width = 800;
-    const int window_height = 600;
+    constexpr int window_width = 800;
+    constexpr int window_height = 600;
 
     const Window_class window_class = get_default_blank_window_class(instance, Window_procedure::static_window_proc, window_title);
 
@@ -148,8 +148,8 @@ OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool window
         DEVMODEW DevMode {};
         DevMode.dmSize = sizeof(DEVMODE);
         DevMode.dmBitsPerPel = 32;
-        DevMode.dmPelsWidth = 640;
-        DevMode.dmPelsHeight = 480;
+        DevMode.dmPelsWidth = window_width;
+        DevMode.dmPelsHeight = window_height;
         DevMode.dmFields = DM_BITSPERPEL;
 
         ChangeDisplaySettingsW(&DevMode, CDS_FULLSCREEN);
@@ -167,7 +167,7 @@ OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool window
             nullptr,
             nullptr,
             instance,
-            nullptr);
+            this);
 
         ShowCursor(false);
     }
