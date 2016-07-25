@@ -14,13 +14,18 @@ class Window_procedure
     Window_procedure& operator=(const Window_procedure&) = delete;
     Window_procedure& operator=(Window_procedure&&) noexcept = delete;
 
+    std::unordered_map<unsigned int, std::function<LRESULT(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param)>> m_handlers;
+
 protected:
-    virtual LRESULT window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept = 0;
+    virtual LRESULT window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept;
 
 public:
     Window_procedure() = default;
     virtual ~Window_procedure() noexcept = default;
     static LRESULT CALLBACK static_window_proc(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept;
+
+    void add_handler(unsigned int message, std::function<LRESULT(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param)> handler);
+    void remove_handler(unsigned int message);
 };
 
 class Window_class

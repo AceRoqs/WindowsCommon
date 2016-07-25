@@ -10,6 +10,19 @@ namespace WindowsCommon
 {
 
 _Use_decl_annotations_
+LRESULT Window_procedure::window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept
+{
+    LRESULT return_value = 0;
+
+    if(m_handlers.count(message) != 0)
+    {
+        return_value = m_handlers[message](window, message, w_param, l_param);
+    }
+
+    return return_value;
+}
+
+_Use_decl_annotations_
 LRESULT CALLBACK Window_procedure::static_window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept
 {
     PortableRuntime::dprintf("%s\n", string_from_window_message(message));
@@ -40,6 +53,19 @@ LRESULT CALLBACK Window_procedure::static_window_proc(HWND window, UINT message,
     }
 
     return return_value;
+}
+
+_Use_decl_annotations_
+void Window_procedure::add_handler(unsigned int message, std::function<LRESULT(HWND window, UINT message, WPARAM w_param, LPARAM l_param)> handler)
+{
+    assert(m_handlers.count(message) == 0);
+
+    m_handlers[message] = handler;
+}
+
+void Window_procedure::remove_handler(unsigned int message)
+{
+    m_handlers.erase(message);
 }
 
 _Use_decl_annotations_
