@@ -12,11 +12,15 @@ namespace WindowsCommon
 _Use_decl_annotations_
 LRESULT Window_procedure::window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept
 {
-    LRESULT return_value = 0;
+    LRESULT return_value;
 
     if(m_handlers.count(message) != 0)
     {
         return_value = m_handlers[message](window, message, w_param, l_param);
+    }
+    else
+    {
+        return_value = DefWindowProc(window, message, w_param, l_param);
     }
 
     return return_value;

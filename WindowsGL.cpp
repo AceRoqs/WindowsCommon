@@ -120,7 +120,7 @@ LRESULT OpenGL_window::window_proc(HWND window, UINT message, WPARAM w_param, LP
 
         default:
         {
-            return_value = DefWindowProc(window, message, w_param, l_param);
+            return_value = Window_procedure::window_proc(window, message, w_param, l_param);
             break;
         }
     }
