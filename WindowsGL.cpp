@@ -86,7 +86,7 @@ static bool is_window_32bits_per_pixel(_In_ HWND window)
 _Use_decl_annotations_
 LRESULT OpenGL_window::window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept
 {
-    LRESULT return_value = 0;
+    LRESULT return_value = Window_procedure::window_proc(window, message, w_param, l_param);
 
     switch(message)
     {
@@ -115,12 +115,6 @@ LRESULT OpenGL_window::window_proc(HWND window, UINT message, WPARAM w_param, LP
             // No need to invoke destructor of window, as that would dispatch another WM_DESTROY.
             m_state.window.release();
 
-            break;
-        }
-
-        default:
-        {
-            return_value = Window_procedure::window_proc(window, message, w_param, l_param);
             break;
         }
     }
