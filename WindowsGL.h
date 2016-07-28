@@ -12,8 +12,6 @@ typedef Scoped_resource<HGLRC> Scoped_current_context;
 struct WGL_state
 {
     // The order of these fields matter, as destruction must happen in the opposite order.
-    Scoped_atom atom;
-    Scoped_window window;
     Scoped_device_context device_context;
     Scoped_gl_context gl_context;
     Scoped_current_context make_current_context;
@@ -22,6 +20,10 @@ struct WGL_state
 class OpenGL_window : public Window_procedure
 {
     bool m_windowed{};
+
+    // The order of these fields matter, as destruction must happen in the opposite order.
+    Scoped_atom m_atom{};
+    Scoped_window m_window{};
     WGL_state m_state{};
 
 protected:
@@ -31,7 +33,7 @@ public:
     OpenGL_window(_In_ PCSTR window_title, _In_ HINSTANCE instance, bool windowed);
     virtual ~OpenGL_window() noexcept override;
 
-    const WGL_state& state() const noexcept;
+    const Scoped_window& window() const noexcept;
 };
 
 Scoped_gl_context create_gl_context(_In_ HDC device_context);

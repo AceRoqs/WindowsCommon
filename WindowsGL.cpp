@@ -113,7 +113,7 @@ LRESULT OpenGL_window::window_proc(HWND window, UINT message, WPARAM w_param, LP
             m_state.device_context.invoke();
 
             // No need to invoke destructor of window, as that would dispatch another WM_DESTROY.
-            m_state.window.release();
+            m_window.release();
 
             break;
         }
@@ -131,11 +131,11 @@ OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool window
 
     const Window_class window_class = get_default_blank_window_class(instance, Window_procedure::static_window_proc, window_title);
 
-    m_state.atom = register_window_class(window_class);
+    m_atom = register_window_class(window_class);
 
     if(windowed)
     {
-        m_state.window = create_normal_window(window_title, window_title, window_width, window_height, instance, this);
+        m_window = create_normal_window(window_title, window_title, window_width, window_height, instance, this);
     }
     else
     {
@@ -150,7 +150,7 @@ OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool window
         DevMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
         ChangeDisplaySettingsW(&DevMode, CDS_FULLSCREEN);
 
-        m_state.window = create_window(
+        m_window = create_window(
             window_title,
             window_title,
             WS_POPUP | WS_CLIPSIBLINGS,
@@ -168,9 +168,9 @@ OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool window
 
     // TODO: 2014: This message text is good - find some way to pass this via the exception.
     //MessageBox(window, TEXT("3D Engine demo requires 32-bit color."), TEXT("System requirements"), MB_OK);
-    CHECK_EXCEPTION(is_window_32bits_per_pixel(m_state.window), u8"Window is not 32bpp.");
+    CHECK_EXCEPTION(is_window_32bits_per_pixel(m_window), u8"Window is not 32bpp.");
 
-    m_state.device_context = get_device_context(m_state.window);
+    m_state.device_context = get_device_context(m_window);
     m_state.gl_context = create_gl_context(m_state.device_context);
     m_state.make_current_context = create_current_context(m_state.device_context, m_state.gl_context);
 
@@ -180,15 +180,15 @@ OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool window
 OpenGL_window::~OpenGL_window() noexcept
 {
     // TODO: 2014: This is just a placeholder - the fullscreen OpenGL code isn't currently exercised.
-    if(!m_windowed)
+   // if(!m_windowed)
     {
         ChangeDisplaySettingsW(nullptr, 0);
     }
 }
 
-const WGL_state& OpenGL_window::state() const noexcept
+const Scoped_window& OpenGL_window::window() const noexcept
 {
-    return m_state;
+    return m_window;
 }
 
 _Use_decl_annotations_
