@@ -180,7 +180,8 @@ OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool window
 OpenGL_window::~OpenGL_window() noexcept
 {
     // TODO: 2014: This is just a placeholder - the fullscreen OpenGL code isn't currently exercised.
-   // if(!m_windowed)
+    // TODO: 2016: Should be able to always do this, as it's a null operation if it wasn't set to begin with.
+    if(!m_windowed)
     {
         ChangeDisplaySettingsW(nullptr, 0);
     }
