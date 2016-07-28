@@ -6,15 +6,18 @@
 namespace WindowsCommon
 {
 
-typedef Scoped_resource<HGLRC> Scoped_gl_context;
-typedef Scoped_resource<HGLRC> Scoped_current_context;
-
-struct WGL_state
+class WGL_state
 {
-    // The order of these fields matter, as destruction must happen in the opposite order.
-    Scoped_device_context device_context;
-    Scoped_gl_context gl_context;
-    Scoped_current_context make_current_context;
+    Scoped_device_context m_device_context{};
+    HGLRC m_gl_context{};
+
+public:
+    ~WGL_state() noexcept;
+
+    void attach(_In_ HWND window);
+    void detach();
+
+    void make_current();
 };
 
 class OpenGL_window : public Window_procedure
@@ -35,11 +38,6 @@ public:
 
     const Scoped_window& window() const noexcept;
 };
-
-Scoped_gl_context create_gl_context(_In_ HDC device_context);
-Scoped_current_context create_current_context(_In_ HDC device_context, _In_ HGLRC gl_context);
-Scoped_gl_context make_scoped_gl_context(_In_ HGLRC gl_context);
-Scoped_current_context make_scoped_current_context(_In_ HGLRC gl_context);
 
 }
 

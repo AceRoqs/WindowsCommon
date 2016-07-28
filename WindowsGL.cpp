@@ -83,6 +83,42 @@ static bool is_window_32bits_per_pixel(_In_ HWND window)
     return true;
 }
 
+static HGLRC create_gl_context(_In_ HDC device_context)
+{
+    const PIXELFORMATDESCRIPTOR descriptor =
+    {
+        sizeof(PIXELFORMATDESCRIPTOR),      // Size of this descriptor.
+        1,                                  // Version number.
+        PFD_DRAW_TO_WINDOW |                // Support window.
+        PFD_SUPPORT_OPENGL |                // Support OpenGL.
+        PFD_GENERIC_ACCELERATED |           // Support hardware acceleration.
+        PFD_DOUBLEBUFFER,                   // Double buffered.
+        PFD_TYPE_RGBA,                      // RGBA type.
+        32,                                 // 32-bit color depth.
+        0, 0, 0, 0, 0, 0,                   // Color bits ignored.
+        0,                                  // No alpha buffer.
+        0,                                  // Shift bit ignored.
+        0,                                  // No accumulation buffer.
+        0, 0, 0, 0,                         // Accum bits ignored.
+        24,                                 // 24-bit z-buffer.
+        8,                                  // 8-bit stencil buffer.
+        0,                                  // No auxiliary buffer.
+        PFD_MAIN_PLANE,                     // Main layer.
+        0,                                  // Reserved.
+        0, 0, 0                             // Layer masks ignored.
+    };
+
+    const int pixel_format = ChoosePixelFormat(device_context, &descriptor);
+    CHECK_BOOL_LAST_ERROR(pixel_format != 0);
+
+    CHECK_BOOL_LAST_ERROR(SetPixelFormat(device_context, pixel_format, &descriptor));
+
+    const auto rendering_context = wglCreateContext(device_context);
+    CHECK_BOOL_LAST_ERROR(nullptr != rendering_context);
+
+    return rendering_context;
+}
+
 _Use_decl_annotations_
 LRESULT OpenGL_window::window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) noexcept
 {
@@ -108,9 +144,7 @@ LRESULT OpenGL_window::window_proc(HWND window, UINT message, WPARAM w_param, LP
 
         case WM_DESTROY:
         {
-            m_state.make_current_context.invoke();
-            m_state.gl_context.invoke();
-            m_state.device_context.invoke();
+            m_state.detach();
 
             // No need to invoke destructor of window, as that would dispatch another WM_DESTROY.
             m_window.release();
@@ -170,9 +204,8 @@ OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool window
     //MessageBox(window, TEXT("3D Engine demo requires 32-bit color."), TEXT("System requirements"), MB_OK);
     CHECK_EXCEPTION(is_window_32bits_per_pixel(m_window), u8"Window is not 32bpp.");
 
-    m_state.device_context = get_device_context(m_window);
-    m_state.gl_context = create_gl_context(m_state.device_context);
-    m_state.make_current_context = create_current_context(m_state.device_context, m_state.gl_context);
+    m_state.attach(m_window);
+    m_state.make_current();
 
     dprintf_gl_strings();
 }
@@ -192,49 +225,14 @@ const Scoped_window& OpenGL_window::window() const noexcept
     return m_window;
 }
 
-_Use_decl_annotations_
-Scoped_gl_context create_gl_context(HDC device_context)
+static void clear_gl_context() noexcept
 {
-    const PIXELFORMATDESCRIPTOR descriptor =
+    if(!wglMakeCurrent(nullptr, nullptr))
     {
-        sizeof(PIXELFORMATDESCRIPTOR),      // Size of this descriptor.
-        1,                                  // Version number.
-        PFD_DRAW_TO_WINDOW |                // Support window.
-        PFD_SUPPORT_OPENGL |                // Support OpenGL.
-        PFD_GENERIC_ACCELERATED |           // Support hardware acceleration.
-        PFD_DOUBLEBUFFER,                   // Double buffered.
-        PFD_TYPE_RGBA,                      // RGBA type.
-        32,                                 // 32-bit color depth.
-        0, 0, 0, 0, 0, 0,                   // Color bits ignored.
-        0,                                  // No alpha buffer.
-        0,                                  // Shift bit ignored.
-        0,                                  // No accumulation buffer.
-        0, 0, 0, 0,                         // Accum bits ignored.
-        24,                                 // 24-bit z-buffer.
-        8,                                  // 8-bit stencil buffer.
-        0,                                  // No auxiliary buffer.
-        PFD_MAIN_PLANE,                     // Main layer.
-        0,                                  // Reserved.
-        0, 0, 0                             // Layer masks ignored.
-    };
-
-    const int pixel_format = ChoosePixelFormat(device_context, &descriptor);
-    CHECK_BOOL_LAST_ERROR(pixel_format != 0);
-
-    CHECK_BOOL_LAST_ERROR(SetPixelFormat(device_context, pixel_format, &descriptor));
-
-    const auto rendering_context = wglCreateContext(device_context);
-    CHECK_BOOL_LAST_ERROR(nullptr != rendering_context);
-
-    return make_scoped_gl_context(rendering_context);
-}
-
-_Use_decl_annotations_
-Scoped_current_context create_current_context(HDC device_context, HGLRC gl_context)
-{
-    CHECK_BOOL_LAST_ERROR(wglMakeCurrent(device_context, gl_context));
-
-    return make_scoped_current_context(gl_context);
+        const auto hr = hresult_from_last_error();
+        (hr);
+        assert(SUCCEEDED(hr));
+    }
 }
 
 static void delete_gl_context(_In_ HGLRC gl_context) noexcept
@@ -247,30 +245,37 @@ static void delete_gl_context(_In_ HGLRC gl_context) noexcept
     }
 }
 
-_Use_decl_annotations_
-Scoped_gl_context make_scoped_gl_context(HGLRC gl_context)
+WGL_state::~WGL_state() noexcept
 {
-    return Scoped_gl_context(gl_context, std::function<void (HGLRC)>(delete_gl_context));
+    detach();
 }
 
-static void clear_gl_context(_In_opt_ HGLRC gl_context) noexcept
+_Use_decl_annotations_
+void WGL_state::attach(HWND window)
 {
-    (void)gl_context;   // Unreferenced parameter.
+    m_device_context = get_device_context(window);
+    m_gl_context = create_gl_context(m_device_context);
+}
 
-    if(!wglMakeCurrent(nullptr, nullptr))
+void WGL_state::detach()
+{
+    if(m_gl_context != nullptr)
     {
-        const auto hr = hresult_from_last_error();
-        (hr);
-        assert(SUCCEEDED(hr));
+        if(wglGetCurrentContext() == m_gl_context)
+        {
+            clear_gl_context();
+        }
+
+        delete_gl_context(m_gl_context);
+        m_gl_context = {};
     }
+
+    m_device_context.invoke();
 }
 
-_Use_decl_annotations_
-Scoped_current_context make_scoped_current_context(HGLRC gl_context)
+void WGL_state::make_current()
 {
-    // TODO: I can't think of a better way than to pass a gl_context, even though it is unused.
-    // A non-null variable is required for the deleter to be part of move construction.
-    return Scoped_current_context(gl_context, std::function<void (HGLRC)>(clear_gl_context));
+    CHECK_BOOL_LAST_ERROR(wglMakeCurrent(m_device_context, m_gl_context));
 }
 
 }
