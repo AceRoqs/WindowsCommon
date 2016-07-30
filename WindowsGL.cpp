@@ -124,6 +124,7 @@ LRESULT OpenGL_window::window_proc(HWND window, UINT message, WPARAM w_param, LP
 {
     LRESULT return_value = Window_procedure::window_proc(window, message, w_param, l_param);
 
+    // Handle WGL messages.
     switch(message)
     {
         case WM_SIZE:
@@ -146,11 +147,15 @@ LRESULT OpenGL_window::window_proc(HWND window, UINT message, WPARAM w_param, LP
         {
             m_state.detach();
 
-            // No need to invoke destructor of window, as that would dispatch another WM_DESTROY.
-            m_window.release();
-
             break;
         }
+    }
+
+    // Handle OpenGL_window messages.
+    if(message == WM_DESTROY)
+    {
+        // No need to invoke destructor of window, as that would dispatch another WM_DESTROY.
+        m_window.release();
     }
 
     return return_value;
