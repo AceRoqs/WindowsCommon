@@ -14,6 +14,7 @@ class Window_procedure
     Window_procedure& operator=(const Window_procedure&) = delete;
     Window_procedure& operator=(Window_procedure&&) noexcept = delete;
 
+    // TODO: 2016: Should destructor validate that m_handlers is empty?
     std::unordered_map<unsigned int, std::function<LRESULT(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param)>> m_handlers;
 
 protected:

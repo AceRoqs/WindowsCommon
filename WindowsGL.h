@@ -14,7 +14,7 @@ class WGL_state
 public:
     ~WGL_state() noexcept;
 
-    void attach(_In_ HWND window);
+    void attach(_In_ HWND window, Window_procedure& proc);
     void detach();
 
     void make_current();

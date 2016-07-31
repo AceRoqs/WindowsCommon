@@ -137,11 +137,12 @@ LRESULT OpenGL_window::window_proc(HWND window, UINT message, WPARAM w_param, LP
             break;
         }
 
-        case WM_ERASEBKGND:
-        {
-            // Do not erase background, as the whole window area will be refreshed anyway.
-            break;
-        }
+        // TODO: 2016: This is handled by the m_state delegate now.  Delete when this becomes the preferred design.
+        //case WM_ERASEBKGND:
+        //{
+        //    // Do not erase background, as the whole window area will be refreshed anyway.
+        //    break;
+        //}
 
         case WM_DESTROY:
         {
@@ -209,7 +210,7 @@ OpenGL_window::OpenGL_window(PCSTR window_title, HINSTANCE instance, bool window
     //MessageBox(window, TEXT("3D Engine demo requires 32-bit color."), TEXT("System requirements"), MB_OK);
     CHECK_EXCEPTION(is_window_32bits_per_pixel(m_window), u8"Window is not 32bpp.");
 
-    m_state.attach(m_window);
+    m_state.attach(m_window, *this);
     m_state.make_current();
 
     dprintf_gl_strings();
@@ -250,16 +251,27 @@ static void delete_gl_context(_In_ HGLRC gl_context) noexcept
     }
 }
 
+// TODO: 2016: Does this type of destruction imply that WGL_state should not be movable?
 WGL_state::~WGL_state() noexcept
 {
     detach();
 }
 
 _Use_decl_annotations_
-void WGL_state::attach(HWND window)
+void WGL_state::attach(HWND window, Window_procedure& proc)
 {
     m_device_context = get_device_context(window);
     m_gl_context = create_gl_context(m_device_context);
+
+    // TODO: 2016: This doesn't yet feel correct, since proc should probably have a reference to a HWND directly,
+    // and *this feels odd to pass into attach.  proc needs to be extended to support multiple handlers per message,
+    // and that implies that the message can't be used as the key for deletion.  Lastly, proc is a & instead of
+    // const&, which perhaps implies that this design could use some refinement.
+    // TODO: 2016: handler is never removed.
+    proc.add_handler(WM_ERASEBKGND, [](HWND, UINT, WPARAM, LPARAM) -> LRESULT
+    {
+        return 0;
+    });
 }
 
 void WGL_state::detach()
