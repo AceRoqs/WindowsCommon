@@ -83,7 +83,32 @@ static bool is_window_32bits_per_pixel(_In_ HWND window)
     return true;
 }
 
-static HGLRC create_gl_context(_In_ HDC device_context)
+static void clear_gl_context() noexcept
+{
+    if(!wglMakeCurrent(nullptr, nullptr))
+    {
+        const auto hr = hresult_from_last_error();
+        (hr);
+        assert(SUCCEEDED(hr));
+    }
+}
+
+static void delete_gl_context(_In_ HGLRC gl_context) noexcept
+{
+    if(!wglDeleteContext(gl_context))
+    {
+        const auto hr = hresult_from_last_error();
+        (hr);
+        assert(SUCCEEDED(hr));
+    }
+}
+
+static Scoped_gl_context make_scoped_gl_context(_In_ HGLRC gl_context)
+{
+    return Scoped_gl_context(gl_context, std::function<void (HGLRC)>(delete_gl_context));
+}
+
+static Scoped_gl_context create_gl_context(_In_ HDC device_context)
 {
     const PIXELFORMATDESCRIPTOR descriptor =
     {
@@ -116,7 +141,7 @@ static HGLRC create_gl_context(_In_ HDC device_context)
     const auto rendering_context = wglCreateContext(device_context);
     CHECK_BOOL_LAST_ERROR(nullptr != rendering_context);
 
-    return rendering_context;
+    return make_scoped_gl_context(rendering_context);
 }
 
 _Use_decl_annotations_
@@ -231,27 +256,6 @@ const Scoped_window& OpenGL_window::window() const noexcept
     return m_window;
 }
 
-static void clear_gl_context() noexcept
-{
-    if(!wglMakeCurrent(nullptr, nullptr))
-    {
-        const auto hr = hresult_from_last_error();
-        (hr);
-        assert(SUCCEEDED(hr));
-    }
-}
-
-static void delete_gl_context(_In_ HGLRC gl_context) noexcept
-{
-    if(!wglDeleteContext(gl_context))
-    {
-        const auto hr = hresult_from_last_error();
-        (hr);
-        assert(SUCCEEDED(hr));
-    }
-}
-
-// TODO: 2016: Does this type of destruction imply that WGL_state should not be movable?
 WGL_state::~WGL_state() noexcept
 {
     detach();
@@ -283,8 +287,7 @@ void WGL_state::detach()
             clear_gl_context();
         }
 
-        delete_gl_context(m_gl_context);
-        m_gl_context = {};
+        m_gl_context.invoke();
     }
 
     m_device_context.invoke();

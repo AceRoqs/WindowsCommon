@@ -6,10 +6,12 @@
 namespace WindowsCommon
 {
 
+typedef Scoped_resource<HGLRC> Scoped_gl_context;
+
 class WGL_state
 {
     Scoped_device_context m_device_context{};
-    HGLRC m_gl_context{};
+    Scoped_gl_context m_gl_context{};
 
 public:
     ~WGL_state() noexcept;
