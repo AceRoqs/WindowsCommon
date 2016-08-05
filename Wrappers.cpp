@@ -59,8 +59,7 @@ LRESULT CALLBACK Window_procedure::static_window_proc(HWND window, UINT message,
     return return_value;
 }
 
-_Use_decl_annotations_
-void Window_procedure::add_handler(unsigned int message, std::function<LRESULT(HWND window, UINT message, WPARAM w_param, LPARAM l_param)> handler)
+void Window_procedure::add_handler(unsigned int message, std::function<LRESULT(_In_ HWND window, UINT message, WPARAM w_param, LPARAM l_param)> handler)
 {
     assert(m_handlers.count(message) == 0);
 
