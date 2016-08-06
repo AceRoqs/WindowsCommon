@@ -5,7 +5,7 @@ namespace WindowsCommon
 
 #define MESSAGE(message) { #message, message }
 
-static const struct Message_map
+static constexpr struct Message_map
 {
     PCSTR text;
     UINT message;

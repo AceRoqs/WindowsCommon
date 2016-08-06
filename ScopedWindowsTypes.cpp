@@ -114,7 +114,7 @@ std::function<void (HFONT)> select_object_functor(HDC device_context) noexcept
 _Use_decl_annotations_
 void delete_object(HFONT font) noexcept
 {
-    auto result = DeleteObject(font);
+    const auto result = DeleteObject(font);
     (result);
     assert(result != 0);
 }

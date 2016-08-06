@@ -4,7 +4,7 @@ namespace WindowsCommon
 {
 
 // Code assumes that keyboard_buffer_size <= MAXDWORD.
-const size_t keyboard_buffer_size = 256;
+constexpr size_t keyboard_buffer_size = 256;
 typedef std::array<uint8_t, keyboard_buffer_size> Keyboard_state;
 
 class Input_device
