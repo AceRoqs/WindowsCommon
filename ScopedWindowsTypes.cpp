@@ -141,7 +141,7 @@ Scoped_local make_scoped_local(HLOCAL local)
     return std::move(Scoped_local(local, std::function<void (HLOCAL)>(local_free)));
 }
 
-UTF8_console_code_page::UTF8_console_code_page()
+UTF8_console_code_page::UTF8_console_code_page() noexcept
     : m_code_page(GetConsoleCP())
 {
     // Set the console output code page to 65001 (UTF-8).  UTF-8 characters can
@@ -178,7 +178,7 @@ UTF8_console_code_page::UTF8_console_code_page()
     SetConsoleOutputCP(CP_UTF8);
 }
 
-UTF8_console_code_page::~UTF8_console_code_page()
+UTF8_console_code_page::~UTF8_console_code_page() noexcept
 {
     // If the app exits without this destructor, the code page will not be set back.
     // chcp may say that the code page has been set back, but it lies (tested

@@ -3,19 +3,19 @@
 namespace WindowsCommon
 {
 
-template <typename RESOURCE, typename DELETER=std::function<void (RESOURCE)>>
+template<typename RESOURCE, typename DELETER=std::function<void (RESOURCE)>>
 class Scoped_resource
 {
-    DELETER m_deleter;
-    RESOURCE m_resource;
+    DELETER m_deleter{};
+    RESOURCE m_resource{};
 
     // Not implemented to prevent accidental copying.
-    Scoped_resource& operator=(const Scoped_resource&) = delete;
     Scoped_resource(const Scoped_resource&) = delete;
+    Scoped_resource& operator=(const Scoped_resource&) = delete;
 
 public:
     explicit Scoped_resource() noexcept :
-        m_resource(0)
+        m_resource{}
     {
     }
 
@@ -25,16 +25,16 @@ public:
     {
     }
 
-    ~Scoped_resource() noexcept
-    {
-        invoke();
-    }
-
     Scoped_resource(Scoped_resource&& other) noexcept :
         m_deleter(std::move(other.m_deleter)),
         m_resource(std::move(other.m_resource))
     {
         other.release();
+    }
+
+    ~Scoped_resource() noexcept
+    {
+        invoke();
     }
 
     Scoped_resource& operator=(Scoped_resource&& other) noexcept
@@ -49,6 +49,11 @@ public:
         }
 
         return *this;
+    }
+
+    operator const RESOURCE&() const noexcept
+    {
+        return m_resource;
     }
 
     void invoke() noexcept
@@ -66,11 +71,6 @@ public:
         m_resource = 0;
 
         return resource;
-    }
-
-    operator const RESOURCE&() const noexcept
-    {
-        return m_resource;
     }
 };
 
@@ -97,12 +97,14 @@ Scoped_font make_scoped_font(_In_ HFONT font, std::function<void (HFONT)> delete
 
 Scoped_local make_scoped_local(_In_ HLOCAL local);
 
+// This class must remain exception free, as it will be used outside of the outermost try block
+// so that fatal error messages have the proper code page.
 class UTF8_console_code_page
 {
-    UINT m_code_page;
+    UINT m_code_page{CP_ACP};
 
 public:
-    UTF8_console_code_page();
+    UTF8_console_code_page() noexcept;
     ~UTF8_console_code_page() noexcept;
 };
 
