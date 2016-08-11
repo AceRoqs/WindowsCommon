@@ -1,6 +1,7 @@
 #include "PreCompile.h"
 #include "ThreadAffinity.h"
 #include "CheckHR.h"
+#include <PortableRuntime/Tracing.h>
 
 namespace WindowsCommon
 {
@@ -21,6 +22,40 @@ void lock_thread_to_first_processor()
         CHECK_BOOL_LAST_ERROR(SetThreadAffinityMask(thread, thread_mask) != 0);
     }
 }
+
+#if 0   // Need a more recent SDK to test this.
+#include <processthreadsapi.h>
+void dprintf_system_cpu_set_information()
+{
+    ULONG length;
+    if(!GetSystemCpuSetInformation(nullptr, 0, &length, GetCurrentProcess(), 0))
+    {
+        if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+        {
+            std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(length);
+            if(GetSystemCpuSetInformation(buffer, length, &length, GetCurrentProcess(), 0))
+            {
+                ULONG offset = 0;
+                while(offset < length)
+                {
+                    SYSTEM_CPU_SET_INFORMATION* info = reinterpret_cast<SYSTEM_CPU_SET_INFORMATION*>(buffer.get() + offset);
+                    if(info->Type == CpuSetInformation)
+                    {
+                        PortableRuntime::dprintf("Id: %u, Group: %u, Index: %u, Core Index: %u, LastLevelCacheIndex: %u\n",
+                                                 info->Id,
+                                                 info->Group,
+                                                 info->LogicalProcessorIndex,
+                                                 info->CoreIndex,
+                                                 info->LastLevelCacheIndex);
+                    }
+
+                    offset += info->Size;
+                }
+            }
+        }
+    }
+}
+#endif
 
 constexpr DWORD MS_VC_exception = 0x406D1388;
 constexpr DWORD_PTR MS_VC_debug_set_name = 0x1000;
