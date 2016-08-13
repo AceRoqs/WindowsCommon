@@ -23,8 +23,6 @@ void lock_thread_to_first_processor()
     }
 }
 
-#if 0   // Need a more recent SDK to test this.
-#include <processthreadsapi.h>
 void dprintf_system_cpu_set_information()
 {
     ULONG length;
@@ -33,7 +31,7 @@ void dprintf_system_cpu_set_information()
         if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
         {
             std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(length);
-            if(GetSystemCpuSetInformation(buffer, length, &length, GetCurrentProcess(), 0))
+            if(GetSystemCpuSetInformation(reinterpret_cast<SYSTEM_CPU_SET_INFORMATION*>(buffer.get()), length, &length, GetCurrentProcess(), 0))
             {
                 ULONG offset = 0;
                 while(offset < length)
@@ -41,12 +39,16 @@ void dprintf_system_cpu_set_information()
                     SYSTEM_CPU_SET_INFORMATION* info = reinterpret_cast<SYSTEM_CPU_SET_INFORMATION*>(buffer.get() + offset);
                     if(info->Type == CpuSetInformation)
                     {
-                        PortableRuntime::dprintf("Id: %u, Group: %u, Index: %u, Core Index: %u, LastLevelCacheIndex: %u\n",
-                                                 info->Id,
-                                                 info->Group,
-                                                 info->LogicalProcessorIndex,
-                                                 info->CoreIndex,
-                                                 info->LastLevelCacheIndex);
+                        PortableRuntime::dprintf("%u Id: %u, Group: %u, Index: %u, Core Index: %u, LastLevelCacheIndex: %u, Allocated: %u, AllocatedToTargetProcess: %u, Parked: %u, RealTime: %u\n",
+                                                 info->CpuSet.Id,
+                                                 info->CpuSet.Group,
+                                                 info->CpuSet.LogicalProcessorIndex,
+                                                 info->CpuSet.CoreIndex,
+                                                 info->CpuSet.LastLevelCacheIndex,
+                                                 info->CpuSet.Allocated,
+                                                 info->CpuSet.AllocatedToTargetProcess,
+                                                 info->CpuSet.Parked,
+                                                 info->CpuSet.RealTime);
                     }
 
                     offset += info->Size;
@@ -55,7 +57,6 @@ void dprintf_system_cpu_set_information()
         }
     }
 }
-#endif
 
 constexpr DWORD MS_VC_exception = 0x406D1388;
 constexpr DWORD_PTR MS_VC_debug_set_name = 0x1000;
@@ -89,6 +90,7 @@ static __checkReturn LONG thread_name_exception_handler(_In_ PEXCEPTION_POINTERS
 // thread_name must be ASCII.
 static void debug_set_thread_name(DWORD thread_id, _In_ PCSTR thread_name) noexcept
 {
+    (void)thread_id;
     (void)thread_name;
 #ifndef NDEBUG
     // Set up a Visual Studio/WinDBG specific structure to pass as
