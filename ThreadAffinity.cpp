@@ -38,7 +38,7 @@ void dprintf_system_cpu_set_information()
         SYSTEM_CPU_SET_INFORMATION* info = reinterpret_cast<SYSTEM_CPU_SET_INFORMATION*>(buffer.get() + offset);
         if(info->Type == CpuSetInformation)
         {
-            PortableRuntime::dprintf("Id: %u, Group: %u, Index: %u, Core Index: %u, LastLevelCacheIndex: %u, Parked: %u, Allocated: %u, AllocatedToTargetProcess: %u, RealTime: %u\n",
+            PortableRuntime::dprintf("Id: %u, Group: %u, LPIndex: %u, CoreIndex: %u, LastLevelCacheIndex: %u, Parked: %u, Allocated: %u, AllocatedToTargetProcess: %u, RealTime: %u\n",
                                      info->CpuSet.Id,
                                      info->CpuSet.Group,
                                      info->CpuSet.LogicalProcessorIndex,
