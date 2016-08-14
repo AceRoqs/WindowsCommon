@@ -26,35 +26,31 @@ void lock_thread_to_first_processor()
 void dprintf_system_cpu_set_information()
 {
     ULONG length;
-    if(!GetSystemCpuSetInformation(nullptr, 0, &length, GetCurrentProcess(), 0))
-    {
-        if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
-        {
-            std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(length);
-            if(GetSystemCpuSetInformation(reinterpret_cast<SYSTEM_CPU_SET_INFORMATION*>(buffer.get()), length, &length, GetCurrentProcess(), 0))
-            {
-                ULONG offset = 0;
-                while(offset < length)
-                {
-                    SYSTEM_CPU_SET_INFORMATION* info = reinterpret_cast<SYSTEM_CPU_SET_INFORMATION*>(buffer.get() + offset);
-                    if(info->Type == CpuSetInformation)
-                    {
-                        PortableRuntime::dprintf("%u Id: %u, Group: %u, Index: %u, Core Index: %u, LastLevelCacheIndex: %u, Allocated: %u, AllocatedToTargetProcess: %u, Parked: %u, RealTime: %u\n",
-                                                 info->CpuSet.Id,
-                                                 info->CpuSet.Group,
-                                                 info->CpuSet.LogicalProcessorIndex,
-                                                 info->CpuSet.CoreIndex,
-                                                 info->CpuSet.LastLevelCacheIndex,
-                                                 info->CpuSet.Allocated,
-                                                 info->CpuSet.AllocatedToTargetProcess,
-                                                 info->CpuSet.Parked,
-                                                 info->CpuSet.RealTime);
-                    }
+    CHECK_EXCEPTION(!GetSystemCpuSetInformation(nullptr, 0, &length, GetCurrentProcess(), 0), u8"Failed to get CPU Set information.");
+    CHECK_EXCEPTION(GetLastError() == ERROR_INSUFFICIENT_BUFFER, u8"Failed to get CPU Set information.");
 
-                    offset += info->Size;
-                }
-            }
+    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(length);
+    CHECK_BOOL_LAST_ERROR(GetSystemCpuSetInformation(reinterpret_cast<SYSTEM_CPU_SET_INFORMATION*>(buffer.get()), length, &length, GetCurrentProcess(), 0));
+
+    ULONG offset = 0;
+    while(offset < length)
+    {
+        SYSTEM_CPU_SET_INFORMATION* info = reinterpret_cast<SYSTEM_CPU_SET_INFORMATION*>(buffer.get() + offset);
+        if(info->Type == CpuSetInformation)
+        {
+            PortableRuntime::dprintf("Id: %u, Group: %u, Index: %u, Core Index: %u, LastLevelCacheIndex: %u, Parked: %u, Allocated: %u, AllocatedToTargetProcess: %u, RealTime: %u\n",
+                                     info->CpuSet.Id,
+                                     info->CpuSet.Group,
+                                     info->CpuSet.LogicalProcessorIndex,
+                                     info->CpuSet.CoreIndex,
+                                     info->CpuSet.LastLevelCacheIndex,
+                                     info->CpuSet.Parked,
+                                     info->CpuSet.Allocated,
+                                     info->CpuSet.AllocatedToTargetProcess,
+                                     info->CpuSet.RealTime);
         }
+
+        offset += info->Size;
     }
 }
 
