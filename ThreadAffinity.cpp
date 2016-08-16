@@ -23,34 +23,91 @@ void lock_thread_to_first_processor()
     }
 }
 
+static const char* string_from_cache_type(PROCESSOR_CACHE_TYPE type)
+{
+    if(type == CacheUnified)     { return u8"CacheUnified"; }
+    if(type == CacheInstruction) { return u8"CacheInstruction"; }
+    if(type == CacheData)        { return u8"CacheData"; }
+    if(type == CacheTrace)       { return u8"CacheTrace"; }
+    return u8"CacheUnknown";
+}
+
 void dprintf_system_cpu_set_information()
 {
-    ULONG length;
-    CHECK_EXCEPTION(!GetSystemCpuSetInformation(nullptr, 0, &length, GetCurrentProcess(), 0), u8"Failed to get CPU Set information.");
-    CHECK_EXCEPTION(GetLastError() == ERROR_INSUFFICIENT_BUFFER, u8"Failed to get CPU Set information.");
-
-    std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(length);
-    CHECK_BOOL_LAST_ERROR(GetSystemCpuSetInformation(reinterpret_cast<SYSTEM_CPU_SET_INFORMATION*>(buffer.get()), length, &length, GetCurrentProcess(), 0));
-
-    ULONG offset = 0;
-    while(offset < length)
     {
-        SYSTEM_CPU_SET_INFORMATION* info = reinterpret_cast<SYSTEM_CPU_SET_INFORMATION*>(buffer.get() + offset);
-        if(info->Type == CpuSetInformation)
-        {
-            PortableRuntime::dprintf("Id: %u, Group: %u, LPIndex: %u, CoreIndex: %u, LastLevelCacheIndex: %u, Parked: %u, Allocated: %u, AllocatedToTargetProcess: %u, RealTime: %u\n",
-                                     info->CpuSet.Id,
-                                     info->CpuSet.Group,
-                                     info->CpuSet.LogicalProcessorIndex,
-                                     info->CpuSet.CoreIndex,
-                                     info->CpuSet.LastLevelCacheIndex,
-                                     info->CpuSet.Parked,
-                                     info->CpuSet.Allocated,
-                                     info->CpuSet.AllocatedToTargetProcess,
-                                     info->CpuSet.RealTime);
-        }
+        ULONG length = 0;
+        CHECK_EXCEPTION(!GetSystemCpuSetInformation(nullptr, 0, &length, GetCurrentProcess(), 0), u8"Failed to get CPU Set information.");
+        CHECK_EXCEPTION(GetLastError() == ERROR_INSUFFICIENT_BUFFER, u8"Failed to get CPU Set information.");
 
-        offset += info->Size;
+        std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(length);
+        CHECK_BOOL_LAST_ERROR(GetSystemCpuSetInformation(reinterpret_cast<SYSTEM_CPU_SET_INFORMATION*>(buffer.get()), length, &length, GetCurrentProcess(), 0));
+
+        ULONG offset = 0;
+        while(offset < length)
+        {
+            CHECK_EXCEPTION((length - offset) >= sizeof(SYSTEM_CPU_SET_INFORMATION), u8"Failed to get CPU Set information.");
+
+            SYSTEM_CPU_SET_INFORMATION* info = reinterpret_cast<SYSTEM_CPU_SET_INFORMATION*>(buffer.get() + offset);
+            if(info->Type == CpuSetInformation)
+            {
+                PortableRuntime::dprintf("Id: %u, Group: %u, LPIndex: %u, CoreIndex: %u, LastLevelCacheIndex: %u, Parked: %u, Allocated: %u, AllocatedToTargetProcess: %u, RealTime: %u\n",
+                                         info->CpuSet.Id,
+                                         info->CpuSet.Group,
+                                         info->CpuSet.LogicalProcessorIndex,
+                                         info->CpuSet.CoreIndex,
+                                         info->CpuSet.LastLevelCacheIndex,
+                                         info->CpuSet.Parked,
+                                         info->CpuSet.Allocated,
+                                         info->CpuSet.AllocatedToTargetProcess,
+                                         info->CpuSet.RealTime);
+            }
+
+            offset += info->Size;
+        }
+    }
+    {
+        DWORD length = 0;
+        CHECK_EXCEPTION(!GetLogicalProcessorInformation(nullptr, &length), u8"");
+        CHECK_EXCEPTION(GetLastError() == ERROR_INSUFFICIENT_BUFFER, u8"");
+
+        std::unique_ptr<uint8_t[]> buffer = std::make_unique<uint8_t[]>(length);
+        CHECK_BOOL_LAST_ERROR(GetLogicalProcessorInformation(reinterpret_cast<SYSTEM_LOGICAL_PROCESSOR_INFORMATION*>(buffer.get()), &length));
+
+        DWORD offset = 0;
+        while(offset < length)
+        {
+            CHECK_EXCEPTION((length - offset) >= sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION), u8"Failed to get CPU Set information.");
+
+            SYSTEM_LOGICAL_PROCESSOR_INFORMATION* info = reinterpret_cast<SYSTEM_LOGICAL_PROCESSOR_INFORMATION*>(buffer.get() + offset);
+            switch(info->Relationship)
+            {
+                case RelationProcessorCore:
+                {
+                    PortableRuntime::dprintf("Mask: %p, Relationship: RelationProcessorCore, Flags: %u\n", info->ProcessorMask, info->ProcessorCore.Flags);
+                    break;
+                }
+
+                case RelationCache:
+                {
+                    PortableRuntime::dprintf("Mask: %p, Relationship: RelationCache, Level: L%u, Associativity: %u, LineSize: %u, Size: %u, Type: %s\n",
+                                             info->ProcessorMask,
+                                             info->Cache.Level,
+                                             info->Cache.Associativity,
+                                             info->Cache.LineSize,
+                                             info->Cache.Size,
+                                             string_from_cache_type(info->Cache.Type));
+                    break;
+                }
+
+                case RelationProcessorPackage:
+                {
+                    PortableRuntime::dprintf("Mask: %p, Relationship: RelationProcessorPackage\n", info->ProcessorMask);
+                    break;
+                }
+            }
+
+            offset += sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
+        }
     }
 }
 
