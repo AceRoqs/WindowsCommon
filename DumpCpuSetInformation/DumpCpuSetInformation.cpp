@@ -8,9 +8,10 @@
 namespace DumpCpuSetInformation
 {
 
-void stdout_dprintf(_In_z_ const char* format) noexcept
+void stdout_dprintf(_In_z_ const char* format, va_list args) noexcept
 {
-    std::wprintf(PortableRuntime::utf16_from_utf8(format).c_str());
+    const auto print_buffer = PortableRuntime::dprintf_string_from_varargs(format, args);
+    std::wprintf(PortableRuntime::utf16_from_utf8(print_buffer).c_str());
 }
 
 }

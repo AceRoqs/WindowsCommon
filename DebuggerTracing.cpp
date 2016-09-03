@@ -1,5 +1,6 @@
 #include "PreCompile.h"
 #include "DebuggerTracing.h"            // Pick up forward declarations to ensure correctness.
+#include <PortableRuntime/Tracing.h>
 #include <PortableRuntime/Unicode.h>
 
 namespace WindowsCommon
@@ -23,10 +24,12 @@ static bool is_control_character(char16_t ch) noexcept
 // Note that it is not possible to ensure that the debugging tool that is capturing
 // the traces has the fonts to display all required UTF-8 characters.
 _Use_decl_annotations_
-void debugger_dprintf(const char* output_string) noexcept
+void debugger_dprintf(const char* format, va_list args) noexcept
 {
 #ifndef NDEBUG
-    const auto utf16_string = PortableRuntime::utf16_from_utf8(output_string);
+    const auto print_buffer = PortableRuntime::dprintf_string_from_varargs(format, args);
+
+    const auto utf16_string = PortableRuntime::utf16_from_utf8(print_buffer);
     const auto c_string = utf16_string.c_str();
 
     // Strip the control character for display so that trace lines can be selected in
@@ -51,7 +54,8 @@ void debugger_dprintf(const char* output_string) noexcept
     // OutputDebugStringA is faster, but it accepts ANSI, not UTF-8.
     OutputDebugStringW(display_string);
 #else
-    (void)(output_string);
+    (void)format;   // Unreferenced parameters.
+    (void)args;
 #endif
 }
 
