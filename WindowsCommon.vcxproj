@@ -62,6 +62,7 @@
     <ClInclude Include="WindowsGL.h" />
     <ClInclude Include="Wrappers.h" />
     <ClCompile Include="Clock.cpp" />
+    <ClCompile Include="CommandLine.cpp" />
     <ClCompile Include="FPU.cpp" />
     <ClCompile Include="Hyperlink.cpp" />
     <ClCompile Include="InputDevice.cpp" />
