@@ -1,4 +1,5 @@
 #include "PreCompile.h"
+#include "CommandLine.h"                // Pick up forward declarations to ensure correctness.
 #include <WindowsCommon/CheckHR.h>
 #include <WindowsCommon/ScopedWindowsTypes.h>
 #include <PortableRuntime/Unicode.h>

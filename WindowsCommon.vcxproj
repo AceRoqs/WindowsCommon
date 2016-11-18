@@ -51,6 +51,7 @@
   <ItemGroup>
     <ClInclude Include="Clock.h" />
     <ClInclude Include="CheckHR.h" />
+    <ClInclude Include="CommandLine.h" />
     <ClInclude Include="FPU.h" />
     <ClInclude Include="Hyperlink.h" />
     <ClInclude Include="InputDevice.h" />
