@@ -8,14 +8,14 @@ namespace WindowsCommon
 // there may be a better abstraction when there are multiple FPUs on a system (e.g. x87 vs SSE).
 class Scoped_FPU_exception_control
 {
-    unsigned int m_original_control;
-    unsigned int m_exception_mask;
+    unsigned int m_original_control{};
+    unsigned int m_exception_mask{};
 
     // Not implemented to prevent accidental copying/moving.
-    Scoped_FPU_exception_control& operator=(const Scoped_FPU_exception_control&) = delete;
     Scoped_FPU_exception_control(const Scoped_FPU_exception_control&) = delete;
-    Scoped_FPU_exception_control(const Scoped_FPU_exception_control&&) = delete;
-    Scoped_FPU_exception_control& operator=(Scoped_FPU_exception_control&&) = delete;
+    Scoped_FPU_exception_control(Scoped_FPU_exception_control&&) noexcept = delete;
+    Scoped_FPU_exception_control& operator=(const Scoped_FPU_exception_control&) = delete;
+    Scoped_FPU_exception_control& operator=(Scoped_FPU_exception_control&&) noexcept = delete;
 
 public:
     Scoped_FPU_exception_control(unsigned int exception_mask);
